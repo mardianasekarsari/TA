@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Alert System Rumah Pompa</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_form">Sign in</string>
 
     <!-- Strings related to login -->
@@ -11,10 +10,15 @@
     <string name="email">Email</string>
     <string name="alamat">Alamat</string>
     <string name="telepon">No Telepon</string>
+    <string name="rumah_pompa">Rumah Pompa</string>
     <string name="edit">Edit</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This username is invalid</string>
+    <string name="submit">Simpan</string>
+    <string name="signup">Daftar</string>
+    <string name="signin">Masuk</string>
+    <string name="error_invalid_username">This username is invalid</string>
+    <string name="error_invalid_name">This name is invalid</string>
+    <string name="error_invalid_phone">This phone is invalid</string>
+    <string name="error_invalid_address">This address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
@@ -30,4 +34,21 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_pengawas_home">PengawasHomeActivity</string>
+    <string name="register">Dont have an account? Register here</string>
+
+    <string name="role">Jabatan</string>
+    <string name="title_activity_petugas_home">Petugas</string>
+    <string name="ketinggian_air">Ketinggian Air (cm)</string>
+    <string name="cuaca">Cuaca</string>
+    <string name="threshold">Threshold Ketinggian Air (cm)</string>
+    <string name="pop">Kemungkinan Terjadi Hujan (%)</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="tinggisaluran">Ketinggian Saluran Air (cm)</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="kedalamansaluran">Kedalaman Saluran (cm)</string>
+    <string name="status">Status Potensi Banjir</string>
+
+    <string name="searchrumahpompa">Masukkan Nama Rumah Pompa</string>
 </resources>

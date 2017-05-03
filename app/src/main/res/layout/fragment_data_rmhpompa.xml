@@ -3,15 +3,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="16dp"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.mardiana.alertsystemrumahpompa.DataRmhpompaFragment">
 
-    <ListView
-        android:id="@+id/lv_rumahpompa"
+    <Spinner
+        android:id="@+id/spin_status_spinner"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <SearchView
+        android:id="@+id/searchView"
+        android:layout_width="wrap_content"
+        android:elevation="2dp"
+        android:background="#fff"
+        android:gravity="center"
         android:layout_height="wrap_content">
-    </ListView>
+    </SearchView>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/lv_rumahpompa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </ListView>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_add_rumahpompa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fabSize="normal"
+            android:layout_margin="16dp"
+            android:clickable="true"
+            android:src="@drawable/ic_add"
+            android:layout_gravity="bottom|end"/>
+    </android.support.design.widget.CoordinatorLayout>
 </LinearLayout>

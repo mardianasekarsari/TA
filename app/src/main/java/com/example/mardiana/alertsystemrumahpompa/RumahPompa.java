@@ -35,4 +35,5 @@ public class RumahPompa{
     public void setAlamat(String alamat) {
         this.alamat = alamat;
     }
+
 }

@@ -3,7 +3,9 @@ package com.example.mardiana.alertsystemrumahpompa;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -14,7 +16,6 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -28,9 +29,26 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -54,24 +72,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+    //private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private EditText edt_username;
-    private EditText edt_password;
-    private View mProgressView;
-    private View mLoginFormView;
+    private EditText edt_username, edt_password;
+    private View mProgressView, mLoginFormView;
+    private SessionManager session;
+    private TextView tv_register;
+    private Button btn_signin;
+    LoginSQLiteHandler db;
+    String apikey;
+
+    Volley mVolleyService;
+    Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        mContext = this;
+        mVolleyService = new Volley(this);
+        db = new LoginSQLiteHandler(this);
+
+        SharedPreferences token = getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
+        apikey = token.getString("apikey", "");
+
         // Set up the login form.
-        edt_username = (EditText) findViewById(R.id.username);
+        edt_username = (EditText) findViewById(R.id.edt_login_username);
         populateAutoComplete();
 
-        edt_password = (EditText) findViewById(R.id.password);
+        edt_password = (EditText) findViewById(R.id.edt_login_password);
         edt_password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -83,7 +114,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button btn_signin = (Button) findViewById(R.id.email_sign_in_button);
+        btn_signin = (Button) findViewById(R.id.btn_login);
         btn_signin.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,8 +122,44 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+        tv_register = ((TextView) findViewById(R.id.tv_register));
+        tv_register.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Toast.makeText(LoginActivity.this, "Lala", Toast.LENGTH_SHORT).show();
+                Intent register = new Intent(getBaseContext(), AddUserActivity.class);
+                startActivity(register);
+                overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        session = new SessionManager(getApplicationContext());
+
+        HashMap<String, String> user = session.getUser();
+
+        String role = user.get(SessionManager.KEY_ROLE);
+        String username = user.get(SessionManager.KEY_USERNAME);
+        String password = user.get(SessionManager.KEY_PASSWORD);
+
+        if (session.isLoggedIn()) {
+            getApiKey(password+username, password, username);
+            // User is already logged in. Take him to main activity
+            Intent intent = null;
+            if (role.equals(AppConfig.ADMIN)){
+                intent = new Intent(getBaseContext(), AdminHomeActivity.class);
+            }else if(role.equals(AppConfig.PETUGAS)){
+                intent = new Intent(getBaseContext(), PetugasHomeActivity.class);
+            }else if (role.equals(AppConfig.PENGAWAS)){
+                intent = new Intent(getBaseContext(), PengawasHomeActivity.class);
+            }
+
+            startActivity(intent);
+
+            finish();
+        }
     }
 
     private void populateAutoComplete() {
@@ -145,9 +212,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
+       /* if (mAuthTask != null) {
             return;
-        }
+        }*/
 
         // Reset errors.
         edt_username.setError(null);
@@ -160,31 +227,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!isPasswordValid(password) && !isPasswordValid(password)) {
-
-            edt_password.setError(getString(R.string.error_invalid_password));
-            focusView = edt_password;
-            cancel = true;
-        }
-
         // Check for a valid username.
         if (TextUtils.isEmpty(username)) {
             edt_username.setError(getString(R.string.error_field_required));
-            focusView = edt_username;
-            cancel = true;
-        } else if (!isUsernameValid(username)) {
-            edt_username.setError(getString(R.string.error_invalid_email));
             focusView = edt_username;
             cancel = true;
         }
 
         if (TextUtils.isEmpty(password)) {
             edt_password.setError(getString(R.string.error_field_required));
-            focusView = edt_password;
-            cancel = true;
-        } else if (!isPasswordValid(password)) {
-            edt_password.setError(getString(R.string.error_invalid_password));
             focusView = edt_password;
             cancel = true;
         }
@@ -197,20 +248,176 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(username, password);
-            mAuthTask.execute((Void) null);
+
+            checkLogin(username, password);
         }
     }
 
-    private boolean isUsernameValid(String username) {
-        //TODO: Replace this with your own logic
-        return username.length() > 4;
+    private void checkLogin(final String username, final String password) {
+        String tag_string_req = "req_login";
+        showProgress(true);
+
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_LOGIN, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                showProgress(false);
+                //Toast.makeText(LoginActivity.this, response, Toast.LENGTH_SHORT).show();
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean status = jObj.getBoolean("status");
+
+                    if (status) {
+                        String msg = jObj.getString("msg");
+                        JSONObject user = jObj.getJSONObject("user");
+                        String nama = user.getString("name");
+                        String alamat = user.getString("address");
+                        String telepon = user.getString("phone");
+                        String role = user.getString("role");
+                        String rumahpompa = user.getString("rumah_pompa");
+
+                        db.addUser(username, nama, role, alamat, telepon, rumahpompa, password);
+                        //Toast.makeText(LoginActivity.this, username + " " + nama + " " + rumahpompa, Toast.LENGTH_SHORT).show();
+
+                        session.setLoginSession(username, nama, role, alamat, telepon, rumahpompa, password);
+
+                        //get token (Registration ID Firebase) from shared preferences
+                        SharedPreferences token = getSharedPreferences(AppConfig.PREF_FIREBASE, MODE_PRIVATE);
+                        String regId = token.getString("regId", "");
+                        //Toast.makeText(context, regId, Toast.LENGTH_SHORT).show();
+
+                        //Insert token to database
+                        editToken(username, regId);
+
+                        getApiKey(password+username, password, username);
+
+                        if (role.equals("ADMIN")){
+                            Intent intent = new Intent(getBaseContext(), AdminHomeActivity.class);
+                            startActivity(intent);
+                        }
+                        else if(role.equals("PETUGAS")){
+                            Intent intent = new Intent(getBaseContext(), PetugasHomeActivity.class);
+                            startActivity(intent);
+                        }else if(role.equals("PENGAWAS")){
+                            Intent intent = new Intent(getBaseContext(), PengawasHomeActivity.class);
+                            startActivity(intent);
+                        }
+
+                    } else {
+                        // Error in login. Get the error message
+                        String errorMsg = jObj.getString("msg");
+                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Log.e(TAG, "Login Error: " + error.getMessage());
+                String message = null;
+                if (error instanceof NetworkError) {
+                    message = "Cannot connect to Internet...Please check your connection!";
+                } else if (error instanceof ServerError) {
+                    message = "The server could not be found. Please try again after some time!!";
+                } else if (error instanceof AuthFailureError) {
+                    message = "Cannot connect to Internet...Please check your connection!";
+                } else if (error instanceof ParseError) {
+                    message = "Parsing error! Please try again after some time!!";
+                } else if (error instanceof NoConnectionError) {
+                    message = "Cannot connect to Internet...Please check your connection!";
+                } else if (error instanceof TimeoutError) {
+                    message = "Connection TimeOut! Please check your internet connection.";
+                }
+                Toast.makeText(getApplicationContext(),
+                        message, Toast.LENGTH_LONG).show();
+                showProgress(false);
+            }
+        }) {
+
+        @Override
+        protected Map<String, String> getParams() {
+            // Posting parameters to login url
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("username", username);
+            params.put("password", password);
+
+            return params;
+        }
+
+        };
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+    private void editToken (final String username, final String token){
+        mVolleyService.editToken(username, token, apikey, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    boolean status = response.getBoolean("status");
+
+                    if (status) {
+                        String msg = response.getString("msg");
+                        //Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                    } else {
+                        // Error in login. Get the error message
+                        String errorMsg = response.getString("msg");
+                        //Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
+
+    private void getApiKey(final String key, final String password, final String username){
+        mVolleyService.getApiKey(key, password, username, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    String status = response.getString("status");
+
+                    if (status.equals("valid")) {
+                        String apikey = response.getString("token");
+
+                        SharedPreferences pref = getApplicationContext().getSharedPreferences(AppConfig.PREF_APIKEY, 0);
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putString("apikey", apikey);
+                        editor.commit();
+                        //Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                    } else {
+                        // Error in login. Get the error message
+
+                        //Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
 
     /**
      * Shows the progress UI and hides the login form.
@@ -302,63 +509,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mUsername;
-        private final String mPassword;
-
-        UserLoginTask(String username, String password) {
-            mUsername = username;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mUsername)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                Intent intent = new Intent(getBaseContext(), AdminHomeActivity.class);
-                startActivity(intent);
-                //finish();
-            } else {
-                edt_password.setError(getString(R.string.error_incorrect_password));
-                edt_password.requestFocus();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
-    }
 }
 

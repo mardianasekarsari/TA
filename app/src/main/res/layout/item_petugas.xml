@@ -6,10 +6,17 @@
     android:padding="16dp"
     android:gravity="center">
     <TextView
+        android:id="@+id/tv_usernamepetugas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingBottom="4dp"
+        android:textColor="@android:color/black"
+        android:visibility="gone"/>
+    <TextView
         android:id="@+id/tv_namapetugas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Petugas 1"
         android:textSize="16sp"
         android:paddingBottom="4dp"
         android:textColor="@android:color/black"/>
@@ -17,13 +24,11 @@
         android:id="@+id/tv_rmhpompapetugas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Rumah Pompa Kalidami"
         android:paddingBottom="4dp"
         android:textSize="14sp"/>
     <TextView
         android:id="@+id/tv_hppetugas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="087653946874"
         android:textSize="14sp"/>
 </LinearLayout>
