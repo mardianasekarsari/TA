@@ -73,7 +73,7 @@ public class Volley {
             @Override
             public Map<String, String> getHeaders() {
                 HashMap<String, String> headers = new HashMap<String, String>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
                 headers.put("Api-key", apikey);
                 return headers;
             }
@@ -110,7 +110,15 @@ public class Volley {
                 Log.e("Error", "Login Error: " + error.getMessage());
                 volleyResponseListener.onError(error.toString());
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
+        };
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
@@ -143,6 +151,14 @@ public class Volley {
         }) {
 
             @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
+
+            @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("username", username);
@@ -168,13 +184,14 @@ public class Volley {
             @Override
             public void onResponse(String response) {
                 try {
-
                     JSONObject jObj = new JSONObject(response);
                     volleyResponseListener.onResponse(jObj);
+                    Log.d("VolleyEditProfil", "Json success");
 
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
+                    Log.d("VolleyEditProfil", "JSonException:" + e.getMessage());
                 }
 
             }
@@ -182,11 +199,18 @@ public class Volley {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
+                Log.d("VolleyEditProfil", error.getMessage());
                 volleyResponseListener.onError(error.toString());
                 //showProgress(false);
             }
         }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -228,7 +252,15 @@ public class Volley {
                 volleyResponseListener.onError(error.toString());
                 //showProgress(false);
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
+        };
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
@@ -261,6 +293,13 @@ public class Volley {
                 volleyResponseListener.onError(error.toString());
             }
         }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -303,6 +342,13 @@ public class Volley {
                 volleyResponseListener.onError(error.toString());
             }
         }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -348,6 +394,13 @@ public class Volley {
                 volleyResponseListener.onError(error.toString());
             }
         }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -400,6 +453,13 @@ public class Volley {
                 //showProgress(false);
             }
         }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -452,6 +512,13 @@ public class Volley {
                 volleyResponseListener.onError(error.toString());
             }
         }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -501,6 +568,13 @@ public class Volley {
                 //showProgress(false);
             }
         }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
 
             @Override
             protected Map<String, String> getParams() {
@@ -518,10 +592,6 @@ public class Volley {
 
     public void getApiKey(final String key, final String password, final String username, final VolleyResponseListener volleyResponseListener){
         String tag_string_req = "req_getapikey";
-        //String url = AppConfig.URL_RUMAHPOMPA + status + "/status";
-        //String url = "http://192.168.1.101/rumahpompa-server/rumah-pompa/status/"+status;
-        //showProgress(true);
-        //Toast.makeText(mContext, AppConfig.URL_RUMAHPOMPA+"?status="+status, Toast.LENGTH_SHORT).show();
 
         StringRequest strReq = new StringRequest(Request.Method.POST,
                 AppConfig.URL_APIKEY, new Response.Listener<String>() {
@@ -551,6 +621,17 @@ public class Volley {
                 //showProgress(false);
             }
         }){
+            @Override
+            public String getBodyContentType() {
+                return "application/x-www-form-urlencoded; charset=UTF-8";
+            }
+
+            /*@Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded");
+                return headers;
+            }*/
 
             @Override
             protected Map<String, String> getParams() {
@@ -558,6 +639,61 @@ public class Volley {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("key", key);
                 params.put("password", password);
+                params.put("username", username);
+
+                return params;
+            }
+        };
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    public void getUserRumahPompa(final String username, final String apikey, final VolleyResponseListener volleyResponseListener){
+        String tag_string_req = "req_getuserrumahpompa";
+        //showProgress(true);
+
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_GETUSERRUMAHPOMPA, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
+                //showProgress(false);
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    JSONObject result = jObj.getJSONObject("result");
+                    volleyResponseListener.onResponse(result);
+                    //Toast.makeText(getActivity().getApplicationContext(), rumah_pompa[0], Toast.LENGTH_SHORT).show();
+
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+
+                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Error", "Login Error: " + error.getMessage());
+                volleyResponseListener.onError(error.toString());
+
+                //showProgress(false);
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                headers.put("Api-key", apikey);
+                return headers;
+            }
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting parameters to login url
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("username", username);
 
                 return params;

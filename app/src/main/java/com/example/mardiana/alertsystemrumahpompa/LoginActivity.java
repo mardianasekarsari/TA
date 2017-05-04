@@ -295,6 +295,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         if (role.equals("ADMIN")){
                             Intent intent = new Intent(getBaseContext(), AdminHomeActivity.class);
                             startActivity(intent);
+                            //Toast.makeText(mContext,"apikey"+apikey, Toast.LENGTH_SHORT).show();
                         }
                         else if(role.equals("PETUGAS")){
                             Intent intent = new Intent(getBaseContext(), PetugasHomeActivity.class);
@@ -406,6 +407,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         editor.commit();
                         //Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
                     } else {
+                        String msg = response.getString("msg");
+                        /*Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();*/
                         // Error in login. Get the error message
 
                         //Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();

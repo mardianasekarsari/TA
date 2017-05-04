@@ -27,6 +27,8 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChangePasswordActivity extends AppCompatActivity {
     EditText edt_oldpassword, edt_newpassword, edt_repassword;
@@ -90,6 +92,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
             edt_newpassword.setError(getString(R.string.error_field_required));
             focusView = edt_newpassword;
             cancel = true;
+        }else if ( edt_newpassword.getText().length()<5){
+            edt_newpassword.setError(getString(R.string.lenght_incorrect_password));
+            focusView = edt_newpassword;
+            cancel = true;
+        } else if (!isPasswordValid(newpassword)) {
+            edt_newpassword.setError(getString(R.string.error_incorrect_password));
+            focusView = edt_newpassword;
+            cancel = true;
         }
 
         if (TextUtils.isEmpty(repassword)) {
@@ -98,7 +108,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             cancel = true;
         }
         else if (!repassword.equals(newpassword)){
-            edt_repassword.setError(getString(R.string.error_incorrect_password));
+            edt_repassword.setError(getString(R.string.error_incorrect_repassword));
             focusView = edt_repassword;
             cancel = true;
         }
@@ -110,6 +120,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
         } else {
             changePassword(username, oldpassword, newpassword);
         }
+    }
+
+    private boolean isPasswordValid(String password) {
+        String password_pattern = "((?=.*\\d)(?=.*[a-zA-Z]).{5,})";
+
+        Pattern pattern = Pattern.compile(password_pattern);
+        Matcher matcher = pattern.matcher(password);
+
+        return matcher.matches();
     }
 
     private void changePassword(final String username, final String oldpassword, final String newpassword){
@@ -130,12 +149,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         setResult(Activity.RESULT_OK);
                         finish();
 
-                        /*if (oldpassword.equals(newpassword)){
-                            showErrorDialog("Masukkan Password Baru yang Berbeda dengan Password Lama");
-                        }
-                        else {
-
-                        }*/
                         //session.editSession(username, nama, role, alamat, nohp, idrumahpompa, password);
                     } else {
                         String kode = response.getString("kode");
@@ -147,6 +160,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         }
                         else if (kode.equals("3")){
                             showErrorDialog("Masukkan Password Baru yang Berbeda dengan Password Lama");
+                        }
+                        else if (kode.equals("4")){
+                            Toast.makeText(ChangePasswordActivity.this, "Token Tidak Valid", Toast.LENGTH_SHORT).show();
                         }
                         //Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }

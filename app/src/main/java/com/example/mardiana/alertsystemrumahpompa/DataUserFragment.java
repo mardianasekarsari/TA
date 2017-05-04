@@ -195,6 +195,34 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
     }
 
     private void getAllUserRumahPompa(final ServerCallback callback){
+        mVolleyService.getAll(AppConfig.URL_GETUSERRUMAHPOMPA, apikey, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    JSONArray result = response.getJSONArray("result");
+
+                    for (int i=0; i<result.length(); i++){
+                        JSONObject re = result.getJSONObject(i);
+                        String username = re.getString("username");
+                        String nama_rumahpompa = re.getString("rumahpompa");
+                        user_rumahpompa.put(username, nama_rumahpompa);
+
+                    }
+                    callback.onSuccess(user_rumahpompa);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+   /* private void getAllUserRumahPompa(final ServerCallback callback){
         String tag_string_req = "req_getalluserrumahpompa";
         //showProgress(true);
 
@@ -237,7 +265,7 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
         });
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
+    }*/
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

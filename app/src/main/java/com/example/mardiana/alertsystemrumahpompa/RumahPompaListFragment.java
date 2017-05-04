@@ -121,7 +121,7 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
         SharedPreferences token = getActivity().getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
         apikey = token.getString("apikey", "");
 
-        getAllRumahPompa();
+        //getAllRumahPompa();
 
         String[] values = new String[] {"All", "Berpotensi Banjir", "Tidak Berpotensi Banjir"};
         final ArrayList<String> list = new ArrayList<String>();
@@ -140,7 +140,7 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String status = spinner_status.getSelectedItem().toString();
-                Toast.makeText(getActivity().getApplicationContext(), status, Toast.LENGTH_SHORT).show();
+                /*Toast.makeText(getActivity().getApplicationContext(), status, Toast.LENGTH_SHORT).show();*/
                 if (status.equals("Semua")){
                     getAllRumahPompa();
                 }
@@ -364,6 +364,7 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
                     for (int i=1; i<result.length(); i++){
                         JSONObject re = result.getJSONObject(i);
                         rumah_pompa[i] = re.getString("nama_");
+                        Toast.makeText(mContext, rumah_pompa[i], Toast.LENGTH_SHORT).show();
                         id[i] = re.getString("id_rumah_pompa");
                         jalan[i] = re.getString("jalan");
 

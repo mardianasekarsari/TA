@@ -169,6 +169,7 @@ public class RumahPompaFragment extends Fragment{
 
         SharedPreferences token = getActivity().getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
         apikey = token.getString("apikey", "");
+        Toast.makeText(mContext, apikey, Toast.LENGTH_SHORT).show();
 
         getLastData();
 
@@ -645,7 +646,7 @@ public class RumahPompaFragment extends Fragment{
                             TextView tv_infowindow_pop = (TextView) v.findViewById(R.id.tv_infowindow_pop);
                             TextView tv_infowindow_nodata = ((TextView) v.findViewById(R.id.tv_infowindow_nodata));
 
-                            if ((last_data_cuaca.get(Integer.valueOf(id)))==null){
+                            if ((last_data_cuaca.get(Integer.valueOf(id))).equals("-")){
                                 tv_infowindow_title.setText(rumah_pompa[Integer.valueOf(id)]);
                                 tv_infowindow_nodata.setText(AppConfig.NODATA);
                                 ll_cuaca.setVisibility(View.GONE);
@@ -895,7 +896,7 @@ public class RumahPompaFragment extends Fragment{
     }*/
 
     public  void getLastData(){
-        mVolleyService.getAll(AppConfig.URL_ROLE, apikey, new VolleyResponseListener() {
+        mVolleyService.getAll(AppConfig.URL_DATA, apikey, new VolleyResponseListener() {
             @Override
             public void onError(String message) {
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
@@ -919,7 +920,6 @@ public class RumahPompaFragment extends Fragment{
                             last_data_tinggiair.put(key, re.getString("ketinggian_air"));
                             last_data_pop.put(key, re.getString("chanceofrain"));
                         }
-
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

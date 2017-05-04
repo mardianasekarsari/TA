@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +38,7 @@ public class UserDetailActivity extends AppCompatActivity {
     private TextView tv_username, tv_name, tv_phonenumber, tv_address, tv_rumahpompa, tv_role;
     String rumahpompa = "";
     String username = "";
-    String nama, nohp, alamat;
+    String nama, nohp, alamat, apikey;
 
     Volley mVolleyService;
     Context mContext;
@@ -52,8 +53,10 @@ public class UserDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_detail);
         mContext = this;
-
         mVolleyService = new Volley(this);
+
+        SharedPreferences token = getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
+        apikey = token.getString("apikey", "");
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -71,7 +74,7 @@ public class UserDetailActivity extends AppCompatActivity {
         tv_role = ((TextView) findViewById(R.id.tv_user_role));
 
         //getUserByUsername(username);
-        mVolleyService.getBy(AppConfig.URL_USER + username, new VolleyResponseListener() {
+        mVolleyService.getBy(AppConfig.URL_USER + username, apikey, new VolleyResponseListener() {
             @Override
             public void onError(String message) {
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
@@ -105,7 +108,7 @@ public class UserDetailActivity extends AppCompatActivity {
 
     private void getRoleUser(final String username, final ServerCallback callback){
         String url = AppConfig.URL_ROLE + username;
-        mVolleyService.getBy(url, new VolleyResponseListener() {
+        mVolleyService.getBy(url, apikey, new VolleyResponseListener() {
             @Override
             public void onError(String message) {
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
@@ -227,7 +230,7 @@ public class UserDetailActivity extends AppCompatActivity {
 
     private void delete(String username){
         String url = AppConfig.URL_USER + username;
-        mVolleyService.delete(url, new VolleyResponseListener() {
+        mVolleyService.delete(url, apikey, new VolleyResponseListener() {
             @Override
             public void onError(String message) {
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();

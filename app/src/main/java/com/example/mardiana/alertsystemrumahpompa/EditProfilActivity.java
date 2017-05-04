@@ -132,7 +132,6 @@ public class EditProfilActivity extends AppCompatActivity {
                     boolean status = response.getBoolean("status");
 
                     if (status) {
-                        //Toast.makeText(getApplicationContext(), "Berhasil", Toast.LENGTH_LONG).show();
                         db.editUser(username, name, phone, address);
                         session.editSession(username, name, role, address, phone, idrumahpompa, password);
                         Toast.makeText(getApplicationContext(), AppConfig.EDIT_SUCCESS, Toast.LENGTH_LONG).show();
@@ -153,14 +152,16 @@ public class EditProfilActivity extends AppCompatActivity {
                         }
 
                         finish();
+                        Log.d("EditProfil", AppConfig.EDIT_SUCCESS);
 
                     } else {
-                        // Error in login. Get the error message
                         String errorMsg = response.getString("msg");
+                        Log.d("EditProfil", errorMsg);
                         Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    Log.d("EditProfil", "JsonException");
                 }
             }
         });

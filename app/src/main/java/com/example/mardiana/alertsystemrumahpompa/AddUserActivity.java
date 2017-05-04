@@ -342,6 +342,25 @@ public class AddUserActivity extends AppCompatActivity {
     }*/
 
     private void getUserRumahPompa(final String username, final String apikey){
+        mVolleyService.getUserRumahPompa(username, apikey, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    selected_rumahpompa = response.getString("nama_");
+                    getAllRumahPompa();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /*private void getUserRumahPompa(final String username, final String apikey){
         String tag_string_req = "req_getuserrumahpompa";
         //showProgress(true);
 
@@ -388,7 +407,7 @@ public class AddUserActivity extends AppCompatActivity {
         };
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
+    }*/
 
 
     private void attemptRegister() {
@@ -463,6 +482,10 @@ public class AddUserActivity extends AppCompatActivity {
                 edt_regpassword.setError(getString(R.string.error_field_required));
                 focusView = edt_regpassword;
                 cancel = true;
+            } else if ( edt_regpassword.getText().length()<5){
+                edt_regpassword.setError(getString(R.string.lenght_incorrect_password));
+                focusView = edt_regpassword;
+                cancel = true;
             } else if (!isPasswordValid(password)) {
                 edt_regpassword.setError(getString(R.string.error_incorrect_password));
                 focusView = edt_regpassword;
@@ -474,7 +497,7 @@ public class AddUserActivity extends AppCompatActivity {
                 focusView = edt_regpassword;
                 cancel = true;
             } else if (!isRepasswordValid(password, repassword)) {
-                edt_regrepassword.setError(getString(R.string.error_incorrect_password));
+                edt_regrepassword.setError(getString(R.string.error_incorrect_repassword));
                 focusView = edt_regrepassword;
                 cancel = true;
             }
@@ -725,8 +748,17 @@ public class AddUserActivity extends AppCompatActivity {
         return matcher.matches();
     }
 
-    private boolean isPasswordValid(String password) {
+    /*private boolean isPasswordValid(String password) {
         String password_pattern = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{5,20})";
+
+        Pattern pattern = Pattern.compile(password_pattern);
+        Matcher matcher = pattern.matcher(password);
+
+        return matcher.matches();
+    }*/
+
+    private boolean isPasswordValid(String password) {
+        String password_pattern = "((?=.*\\d)(?=.*[a-zA-Z]).{5,})";
 
         Pattern pattern = Pattern.compile(password_pattern);
         Matcher matcher = pattern.matcher(password);

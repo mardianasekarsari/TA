@@ -20,8 +20,10 @@
     <string name="error_invalid_phone">This phone is invalid</string>
     <string name="error_invalid_address">This address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
+    <string name="error_incorrect_password">Password Harus Kombinasi Huruf dan Angka</string>
+    <string name="lenght_incorrect_password">Password Minimal 5 Digit</string>
+    <string name="error_incorrect_repassword">Password Salah</string>
+    <string name="error_field_required">Wajib Diisi</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>

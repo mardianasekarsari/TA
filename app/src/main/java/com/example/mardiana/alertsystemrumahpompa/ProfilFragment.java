@@ -117,6 +117,7 @@ public class ProfilFragment extends Fragment {
 
         SharedPreferences token = getActivity().getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
         apikey = token.getString("apikey", "");
+        /*Toast.makeText(mContext, apikey, Toast.LENGTH_SHORT).show();*/
 
         tv_petugas_usernama = ((TextView) view.findViewById(R.id.tv_petugas_username));
         tv_petugas_nama = ((TextView) view.findViewById(R.id.tv_petugas_nama));
@@ -309,7 +310,10 @@ public class ProfilFragment extends Fragment {
     }*/
 
     private void delete(String username){
+        //String post_data = Uri.encode()
         String url = AppConfig.URL_USER + username + "/token";
+
+        //String url = AppConfig.URL_USER + "deleteToken/" + username;
         mVolleyService.delete(url, apikey, new VolleyResponseListener() {
             @Override
             public void onError(String message) {
@@ -331,6 +335,7 @@ public class ProfilFragment extends Fragment {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });

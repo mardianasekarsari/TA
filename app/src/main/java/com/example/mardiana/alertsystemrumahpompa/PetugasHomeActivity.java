@@ -67,7 +67,7 @@ public class PetugasHomeActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ((TextView) findViewById(R.id.main_toolbar_title)).setText("User");
+        ((TextView) findViewById(R.id.main_toolbar_title)).setText("Petugas");
 
         //getSupportActionBar().setTitle("User");
 
