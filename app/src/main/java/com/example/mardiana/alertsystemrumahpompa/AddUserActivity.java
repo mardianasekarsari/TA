@@ -82,8 +82,9 @@ public class AddUserActivity extends AppCompatActivity {
         mContext = this;
         mVolleyService = new Volley(this);
 
-        SharedPreferences token = getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
+        SharedPreferences token = getSharedPreferences(AppConfig.PREF_APIKEY, 0);
         apikey = token.getString("apikey", "");
+        Toast.makeText(mContext, apikey, Toast.LENGTH_SHORT).show();
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -110,6 +111,7 @@ public class AddUserActivity extends AppCompatActivity {
 
             til_regpassword.setVisibility(View.GONE);
             til_regrepassword.setVisibility(View.GONE);
+            edt_regusername.setEnabled(false);
 
             //set edit text
             mVolleyService.getBy(AppConfig.URL_USER + username, apikey, new VolleyResponseListener() {
@@ -121,24 +123,32 @@ public class AddUserActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(JSONObject response) {
                     try {
-                        nama = response.getString("nama_user");
-                        nohp = response.getString("no_telp_user");
-                        alamat = response.getString("alamat_user");
+                        boolean status = response.getBoolean("status");
 
-                        getRoleUser(username, new ServerCallback() {
-                            @Override
-                            public void onSuccess(String role) {
-                                // do stuff here
-                                edt_regusername.setText(username);
-                                //edt.setText(rumahpompa);
-                                edt_regname.setText(nama);
-                                edt_regaddress.setText(alamat);
-                                edt_regphone.setText(nohp);
-                                //role_spinner.setText(role);
-                                selected_role = role;
-                                getAllRole();
-                            }
-                        });
+                        if (status) {
+                            JSONObject result = response.getJSONObject("result");
+                            nama = result.getString("nama_user");
+                            nohp = result.getString("no_telp_user");
+                            alamat = result.getString("alamat_user");
+
+                            getRoleUser(username, new ServerCallback() {
+                                @Override
+                                public void onSuccess(String role) {
+                                    // do stuff here
+                                    edt_regusername.setText(username);
+                                    //edt.setText(rumahpompa);
+                                    edt_regname.setText(nama);
+                                    edt_regaddress.setText(alamat);
+                                    edt_regphone.setText(nohp);
+                                    //role_spinner.setText(role);
+                                    selected_role = role;
+                                    getAllRole();
+                                }
+                            });
+                        }
+                        else {
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -178,22 +188,28 @@ public class AddUserActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray result = response.getJSONArray("result");
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONArray result = response.getJSONArray("result");
 
-                    rumah_pompa = new String[result.length()];
-                    id = new String[result.length()];
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        rumah_pompa[i] = re.getString("nama_");
-                        id[i] = re.getString("id_rumah_pompa");
+                        rumah_pompa = new String[result.length()];
+                        id = new String[result.length()];
+                        for (int i=0; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            rumah_pompa[i] = re.getString("nama_");
+                            id[i] = re.getString("id_rumah_pompa");
+                        }
+
+                        ArrayAdapter<String> arrayAdapter_rumahPompa = new ArrayAdapter<String>(AddUserActivity.this, android.R.layout.simple_dropdown_item_1line, rumah_pompa);
+                        rumahpompa_spinner = ((MaterialBetterSpinner) findViewById(R.id.spin_rumah_pompa));
+                        rumahpompa_spinner.setAdapter(arrayAdapter_rumahPompa);
+                        if (!selected_rumahpompa.equals("")){
+                            rumahpompa_spinner.setText(selected_rumahpompa);
+                        }
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
 
-                    ArrayAdapter<String> arrayAdapter_rumahPompa = new ArrayAdapter<String>(AddUserActivity.this, android.R.layout.simple_dropdown_item_1line, rumah_pompa);
-                    rumahpompa_spinner = ((MaterialBetterSpinner) findViewById(R.id.spin_rumah_pompa));
-                    rumahpompa_spinner.setAdapter(arrayAdapter_rumahPompa);
-                    if (!selected_rumahpompa.equals("")){
-                        rumahpompa_spinner.setText(selected_rumahpompa);
-                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -261,25 +277,31 @@ public class AddUserActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray result = response.getJSONArray("result");
+                    boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONArray result = response.getJSONArray("result");
 
-                    temp = new String[result.length()];
-                    role_list = new String[result.length()];
-                    role = new String[result.length()];
-                    //id = new String[result.length()];
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        role[i] = re.getString("nama_role");
-                        temp[i] = role[i].toLowerCase();
-                        role_list[i] = temp[i].substring(0, 1).toUpperCase() + temp[i].substring(1);
-                        //id[i] = re.getString("id_role");
+                        temp = new String[result.length()];
+                        role_list = new String[result.length()];
+                        role = new String[result.length()];
+                        //id = new String[result.length()];
+                        for (int i=0; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            role[i] = re.getString("nama_role");
+                            temp[i] = role[i].toLowerCase();
+                            role_list[i] = temp[i].substring(0, 1).toUpperCase() + temp[i].substring(1);
+                            //id[i] = re.getString("id_role");
+                        }
+
+                        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(AddUserActivity.this, android.R.layout.simple_dropdown_item_1line, role_list);
+                        role_spinner = ((MaterialBetterSpinner) findViewById(R.id.spin_role_spinner));
+                        role_spinner.setAdapter(arrayAdapter);
+                        if (!selected_role.equals("")){
+                            role_spinner.setText(selected_role);
+                        }
                     }
-
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(AddUserActivity.this, android.R.layout.simple_dropdown_item_1line, role_list);
-                    role_spinner = ((MaterialBetterSpinner) findViewById(R.id.spin_role_spinner));
-                    role_spinner.setAdapter(arrayAdapter);
-                    if (!selected_role.equals("")){
-                        role_spinner.setText(selected_role);
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -351,8 +373,15 @@ public class AddUserActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    selected_rumahpompa = response.getString("nama_");
-                    getAllRumahPompa();
+                    boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONObject result = response.getJSONObject("result");
+                        selected_rumahpompa = result.getString("nama_");
+                        getAllRumahPompa();
+                    }
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -418,6 +447,7 @@ public class AddUserActivity extends AppCompatActivity {
         edt_regpassword.setError(null);
         edt_regrepassword.setError(null);
         role_spinner.setError(null);
+        rumahpompa_spinner.setError(null);
 
         // Store values at the time of the login attempt.
         String username = edt_regusername.getText().toString();
@@ -501,6 +531,18 @@ public class AddUserActivity extends AppCompatActivity {
                 focusView = edt_regrepassword;
                 cancel = true;
             }
+
+            if (role_spinner.getText().toString().equals("")){
+                role_spinner.setError(getString(R.string.error_field_required));
+                focusView = role_spinner;
+                cancel = true;
+            }
+
+            if (rumahpompa_spinner.getText().toString().equals("")){
+                rumahpompa_spinner.setError(getString(R.string.error_field_required));
+                focusView = rumahpompa_spinner;
+                cancel = true;
+            }
         }
 
         if (cancel) {
@@ -541,7 +583,14 @@ public class AddUserActivity extends AppCompatActivity {
                     } else {
                         // Error in login. Get the error message
                         String errorMsg = response.getString("msg");
-                        Toast.makeText(AddUserActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                        String kode = response.getString("kode");
+                        if (kode.equals("1")){
+                            Toast.makeText(AddUserActivity.this, AppConfig.STORE_FAILED, Toast.LENGTH_SHORT).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(AddUserActivity.this, "Username Sudah Terpakai", Toast.LENGTH_SHORT).show();
+                        }else if (kode.equals("3")){
+                            Toast.makeText(AddUserActivity.this, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -571,7 +620,12 @@ public class AddUserActivity extends AppCompatActivity {
                     } else {
                         // Error in login. Get the error message
                         String errorMsg = response.getString("msg");
-                        Toast.makeText(AddUserActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                        String kode = response.getString("kode");
+                        if (kode.equals("1")){
+                            Toast.makeText(AddUserActivity.this, AppConfig.EDIT_FAILED, Toast.LENGTH_SHORT).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(AddUserActivity.this, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -844,8 +898,16 @@ public class AddUserActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    String role = response.getString("nama_role");
-                    callback.onSuccess(role);
+                    boolean status = response.getBoolean("status");
+
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        String role = result.getString("nama_role");
+                        callback.onSuccess(role);
+                    }
+                    else {
+                        Toast.makeText(AddUserActivity.this, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

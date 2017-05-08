@@ -113,6 +113,14 @@ public class AddRumahPompaActivity extends AppCompatActivity {
                         setResult(Activity.RESULT_OK);
                         finish();
                     }
+                    else{
+                        String kode = response.getString("kode");
+                        if (kode.equals("1")){
+                            Toast.makeText(getApplicationContext(), AppConfig.STORE_FAILED, Toast.LENGTH_LONG).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -52,9 +52,8 @@ public class Volley {
                 //showProgress(false);
                 try {
                     JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
 
-                    volleyResponseListener.onResponse(result);
+                    volleyResponseListener.onResponse(jObj);
 
                 } catch (JSONException e) {
                     // JSON error
@@ -91,7 +90,6 @@ public class Volley {
 
             @Override
             public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
                 //showProgress(false);
                 try {
                     JSONObject jObj = new JSONObject(response);
@@ -497,8 +495,7 @@ public class Volley {
 
                 try {
                     JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-                    volleyResponseListener.onResponse(result);
+                    volleyResponseListener.onResponse(jObj);
 
                 } catch (JSONException e) {
                     // JSON error
@@ -650,10 +647,10 @@ public class Volley {
 
     public void getUserRumahPompa(final String username, final String apikey, final VolleyResponseListener volleyResponseListener){
         String tag_string_req = "req_getuserrumahpompa";
+        String url = AppConfig.URL_USERRUMAHPOMPA + username;
         //showProgress(true);
 
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETUSERRUMAHPOMPA, new Response.Listener<String>() {
+        StringRequest strReq = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -661,8 +658,7 @@ public class Volley {
                 //showProgress(false);
                 try {
                     JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-                    volleyResponseListener.onResponse(result);
+                    volleyResponseListener.onResponse(jObj);
                     //Toast.makeText(getActivity().getApplicationContext(), rumah_pompa[0], Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
@@ -689,16 +685,6 @@ public class Volley {
                 headers.put("Api-key", apikey);
                 return headers;
             }
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-
-                return params;
-            }
-
         };
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);

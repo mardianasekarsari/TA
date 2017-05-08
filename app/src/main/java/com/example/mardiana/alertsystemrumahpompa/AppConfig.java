@@ -11,7 +11,7 @@ public class AppConfig {
     // This class contains all the constant values that we use across the app.
 
     // Web service url
-    private static String url = "http://192.168.1.100/rumahpompa-server/";
+    private static String url = "http://192.168.1.101/rumahpompa-server/";
     public static String URL_USER = url + "user/";
     public static String URL_RUMAHPOMPA = url + "rumah-pompa/";
     public static String URL_ROLE = url + "role/";
@@ -19,6 +19,7 @@ public class AppConfig {
     public static String URL_LOGIN = url + "login";
     public static String URL_APIKEY = url + "apikey/";
     public static String URL_TOKEN = url + "token/";
+    public static String URL_USERRUMAHPOMPA = url + "user-rumahpompa/";
 
     public static String URL_GETRUMAHPOMPABYNAME = url + "rumah_pompa/getrumahpompabyName";
     public static String URL_GETRUMAHPOMPABYSTATUS = url + "rumah_pompa/getrumahpompabyStatus";

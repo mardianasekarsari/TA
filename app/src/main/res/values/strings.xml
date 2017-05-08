@@ -23,6 +23,7 @@
     <string name="error_incorrect_password">Password Harus Kombinasi Huruf dan Angka</string>
     <string name="lenght_incorrect_password">Password Minimal 5 Digit</string>
     <string name="error_incorrect_repassword">Password Salah</string>
+    <string name="invalid_token">Token Tidak Valid</string>
     <string name="error_field_required">Wajib Diisi</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."

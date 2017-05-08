@@ -135,6 +135,15 @@ public class EditRumahPompaActivity extends AppCompatActivity {
 
                         finish();
                     }
+                    else {
+                        String kode = response.getString("kode");
+                        String errorMsg = response.getString("msg");
+                        if (kode.equals("1")){
+                            Toast.makeText(getApplicationContext(), AppConfig.EDIT_FAILED, Toast.LENGTH_LONG).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -229,39 +238,45 @@ public class EditRumahPompaActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    nama_rumahpompa = response.getString("nama_");
-                    alamat_rumahpompa = response.getString("jalan");
-                    nohp_rumahpompa = response.getString("no_telp_rumah_pompa");
-                    threshold_rumahpompa = response.getString("threshold_tinggi_air");
-                    final String latitude_rumahpompa = response.getString("latitude");
-                    String longitude_rumahpompa = response.getString("longitude");
-                    String depthofriver_rumahpompa = response.getString("ketinggian_sungai");
+                    boolean status = response.getBoolean("status");
 
-                    edt_threshold.setText(threshold_rumahpompa);
-                    edt_name.setText(nama_rumahpompa);
-                    edt_address.setText(alamat_rumahpompa);
-                    edt_phone.setText(nohp_rumahpompa);
-                    edt_latitude.setText(latitude_rumahpompa);
-                    edt_longitude.setText(longitude_rumahpompa);
-                    edt_depth.setText(depthofriver_rumahpompa);
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        nama_rumahpompa = result.getString("nama_");
+                        alamat_rumahpompa = result.getString("jalan");
+                        nohp_rumahpompa = result.getString("no_telp_rumah_pompa");
+                        threshold_rumahpompa = result.getString("threshold_tinggi_air");
+                        final String latitude_rumahpompa = result.getString("latitude");
+                        String longitude_rumahpompa = result.getString("longitude");
+                        String depthofriver_rumahpompa = result.getString("ketinggian_sungai");
 
-                    btn_edit.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            nama = edt_name.getText().toString();
-                            alamat = edt_address.getText().toString();
-                            nohp = edt_phone.getText().toString();
-                            threshold = edt_threshold.getText().toString();
-                            latitude = edt_latitude.getText().toString();
-                            longitude = edt_longitude.getText().toString();
-                            depthofriver = edt_depth.getText().toString();
+                        edt_threshold.setText(threshold_rumahpompa);
+                        edt_name.setText(nama_rumahpompa);
+                        edt_address.setText(alamat_rumahpompa);
+                        edt_phone.setText(nohp_rumahpompa);
+                        edt_latitude.setText(latitude_rumahpompa);
+                        edt_longitude.setText(longitude_rumahpompa);
+                        edt_depth.setText(depthofriver_rumahpompa);
 
-                            //if(role.equals("PETUGAS")){
-                            validateForm(nama, nohp, alamat, threshold, latitude, longitude, depthofriver);
-                            //}
-                        }
-                    });
+                        btn_edit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                nama = edt_name.getText().toString();
+                                alamat = edt_address.getText().toString();
+                                nohp = edt_phone.getText().toString();
+                                threshold = edt_threshold.getText().toString();
+                                latitude = edt_latitude.getText().toString();
+                                longitude = edt_longitude.getText().toString();
+                                depthofriver = edt_depth.getText().toString();
 
+                                //if(role.equals("PETUGAS")){
+                                validateForm(nama, nohp, alamat, threshold, latitude, longitude, depthofriver);
+                                //}
+                            }
+                        });
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

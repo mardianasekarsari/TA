@@ -155,9 +155,14 @@ public class EditProfilActivity extends AppCompatActivity {
                         Log.d("EditProfil", AppConfig.EDIT_SUCCESS);
 
                     } else {
+                        String kode = response.getString("kode");
                         String errorMsg = response.getString("msg");
                         Log.d("EditProfil", errorMsg);
-                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        if (kode.equals("1")){
+                            Toast.makeText(getApplicationContext(), AppConfig.EDIT_FAILED, Toast.LENGTH_LONG).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -235,10 +240,19 @@ public class EditProfilActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    rumahpompa = response.getString("nama_");
-                    //spinner_rumahpompa.setHint(rumahpompa);
-                    edt_rumahpompa.setText(rumahpompa);
-                    //Toast.makeText(EditProfilActivity.this, rumahpompa, Toast.LENGTH_SHORT).show();
+                    boolean status = response.getBoolean("status");
+
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        rumahpompa = result.getString("nama_");
+                        //spinner_rumahpompa.setHint(rumahpompa);
+                        edt_rumahpompa.setText(rumahpompa);
+                        //Toast.makeText(EditProfilActivity.this, rumahpompa, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        String errorMsg = response.getString("msg");
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

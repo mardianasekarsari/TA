@@ -101,27 +101,35 @@ public class RumahPompaActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    nama = response.getString("nama_");
-                    alamat = response.getString("jalan");
-                    nohp = response.getString("no_telp_rumah_pompa");
-                    threshold = response.getString("threshold_tinggi_air");
-                    String latitude = response.getString("latitude");
-                    String longitude = response.getString("longitude");
-                    String status = response.getString("alert");
-                    String kedalamansaluran = response.getString("ketinggian_sungai");
+                    boolean status = response.getBoolean("status");
 
-                    tv_rumahpompa_nama.setText(nama);
-                    tv_rumahpompa_alamat.setText(alamat);
-                    tv_rumahpompa_nohp.setText(nohp);
-                    tv_rumahpompa_threshold.setText(threshold);
-                    tv_rumahpompa_latitude.setText(latitude);
-                    tv_rumahpompa_longitude.setText(longitude);
-                    tv_rumahpompa_kedalamansaluran.setText(kedalamansaluran);
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        nama = result.getString("nama_");
+                        alamat = result.getString("jalan");
+                        nohp = result.getString("no_telp_rumah_pompa");
+                        threshold = result.getString("threshold_tinggi_air");
+                        String latitude = result.getString("latitude");
+                        String longitude = result.getString("longitude");
+                        String statusalert = result.getString("alert");
+                        String kedalamansaluran = result.getString("ketinggian_sungai");
 
-                    if (status.equals("t"))
-                        tv_rumahpompa_status.setText("Berpotensi Banjir");
-                    else
-                        tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
+                        tv_rumahpompa_nama.setText(nama);
+                        tv_rumahpompa_alamat.setText(alamat);
+                        tv_rumahpompa_nohp.setText(nohp);
+                        tv_rumahpompa_threshold.setText(threshold);
+                        tv_rumahpompa_latitude.setText(latitude);
+                        tv_rumahpompa_longitude.setText(longitude);
+                        tv_rumahpompa_kedalamansaluran.setText(kedalamansaluran);
+
+                        if (statusalert.equals("t"))
+                            tv_rumahpompa_status.setText("Berpotensi Banjir");
+                        else
+                            tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -210,21 +218,29 @@ public class RumahPompaActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    String cuaca = response.getString("cuaca");
-                    String pop = response.getString("chanceofrain");
-                    String waktu = response.getString("waktu");
-                    String ketinggianair = response.getString("ketinggian_air");
+                    boolean status = response.getBoolean("status");
 
-                    //check if rumahpompa has data
-                    if (response.length()==0){
-                        cuaca = "-";
-                        pop = "-";
-                        ketinggianair = "-";
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        String cuaca = result.getString("cuaca");
+                        String pop = result.getString("chanceofrain");
+                        String waktu = result.getString("waktu");
+                        String ketinggianair = result.getString("ketinggian_air");
+
+                        //check if rumahpompa has data
+                        if (result.length()==0){
+                            cuaca = "-";
+                            pop = "-";
+                            ketinggianair = "-";
+                        }
+
+                        tv_rumahpompa_cuaca.setText(cuaca);
+                        tv_rumahpompa_tinggiair.setText(ketinggianair);
+                        tv_rumahpompa_pop.setText(pop);
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
 
-                    tv_rumahpompa_cuaca.setText(cuaca);
-                    tv_rumahpompa_tinggiair.setText(ketinggianair);
-                    tv_rumahpompa_pop.setText(pop);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -365,8 +381,14 @@ public class RumahPompaActivity extends AppCompatActivity {
                     boolean status = response.getBoolean("status");
                     if (status){
                         Toast.makeText(RumahPompaActivity.this, AppConfig.DELETE_SUCCESS, Toast.LENGTH_SHORT).show();
+                        finish();
                     }else {
-                        Toast.makeText(RumahPompaActivity.this, AppConfig.DELETE_FAILED, Toast.LENGTH_SHORT).show();
+                        String kode = response.getString("kode");
+                        if (kode.equals("1")){
+                            Toast.makeText(RumahPompaActivity.this, AppConfig.DELETE_FAILED, Toast.LENGTH_SHORT).show();
+                        }else if (kode.equals("1")){
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

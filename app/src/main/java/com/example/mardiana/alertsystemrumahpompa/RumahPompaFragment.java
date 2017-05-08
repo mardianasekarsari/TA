@@ -93,6 +93,9 @@ public class RumahPompaFragment extends Fragment{
     private static String nohp="";
     private static String threshold="";
     private static String kedalamaninlet="";
+    private static String data_cuaca="";
+    private static String data_pop="";
+    private static String data_tinggiair="";
     private String apikey;
 
     private Bitmap mFinalBitmap;
@@ -169,7 +172,6 @@ public class RumahPompaFragment extends Fragment{
 
         SharedPreferences token = getActivity().getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
         apikey = token.getString("apikey", "");
-        Toast.makeText(mContext, apikey, Toast.LENGTH_SHORT).show();
 
         getLastData();
 
@@ -307,24 +309,31 @@ public class RumahPompaFragment extends Fragment{
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    nama = response.getString("nama_");
-                    alamat = response.getString("jalan");
-                    nohp = response.getString("no_telp_rumah_pompa");
-                    threshold = response.getString("threshold_tinggi_air");
-                    kedalamaninlet = response.getString("ketinggian_sungai");
-                    String status = response.getString("alert");
+                    boolean status = response.getBoolean("status");
 
-                    tv_rumahpompa_nama.setText(nama);
-                    tv_rumahpompa_alamat.setText(alamat);
-                    tv_rumahpompa_nohp.setText(nohp);
-                    tv_rumahpompa_threshold.setText(threshold);
-                    tv_rumahpompa_kedalamaninlet.setText(kedalamaninlet);
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        nama = result.getString("nama_");
+                        alamat = result.getString("jalan");
+                        nohp = result.getString("no_telp_rumah_pompa");
+                        threshold = result.getString("threshold_tinggi_air");
+                        kedalamaninlet = result.getString("ketinggian_sungai");
+                        String statusalert = result.getString("alert");
 
-                    if (status.equals("t")){
-                        tv_rumahpompa_status.setText("Berpotensi Banjir");
-                    }
-                    else {
-                        tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
+                        tv_rumahpompa_nama.setText(nama);
+                        tv_rumahpompa_alamat.setText(alamat);
+                        tv_rumahpompa_nohp.setText(nohp);
+                        tv_rumahpompa_threshold.setText(threshold);
+                        tv_rumahpompa_kedalamaninlet.setText(kedalamaninlet);
+
+                        if (statusalert.equals("t")){
+                            tv_rumahpompa_status.setText("Berpotensi Banjir");
+                        }
+                        else {
+                            tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
+                        }
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (JSONException e) {
@@ -412,19 +421,27 @@ public class RumahPompaFragment extends Fragment{
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    if (!response.isNull("id_data")){
-                        String cuaca = response.getString("cuaca");
-                        String pop = response.getString("chanceofrain");
-                        String waktu = response.getString("waktu");
-                        String ketinggianair = response.getString("ketinggian_air");
+                    boolean status = response.getBoolean("status");
 
-                        tv_rumahpompa_cuaca.setText(cuaca);
-                        tv_rumahpompa_tinggiair.setText(ketinggianair);
-                        tv_rumahpompa_pop.setText(pop);
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+                        if (!result.isNull("id_data")){
+                            String cuaca = result.getString("cuaca");
+                            String pop = result.getString("chanceofrain");
+                            String waktu = result.getString("waktu");
+                            String ketinggianair = result.getString("ketinggian_air");
+
+                            tv_rumahpompa_cuaca.setText(cuaca);
+                            tv_rumahpompa_tinggiair.setText(ketinggianair);
+                            tv_rumahpompa_pop.setText(pop);
+                        }
+                        else {
+                            //Toast.makeText(getActivity().getApplicationContext(), AppConfig.NODATA , Toast.LENGTH_SHORT).show();
+                        }
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
-                    else {
-                        //Toast.makeText(getActivity().getApplicationContext(), AppConfig.NODATA , Toast.LENGTH_SHORT).show();
-                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -509,173 +526,184 @@ public class RumahPompaFragment extends Fragment{
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    final JSONArray result = response.getJSONArray("result");
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        final JSONArray result = response.getJSONArray("result");
 
-                    rumah_pompa = new String[result.length()];
-                    id = new String[result.length()];
+                        rumah_pompa = new String[result.length()];
+                        id = new String[result.length()];
 
-                    final HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
-                    final HashMap<String, Marker> markerName = new HashMap<String, Marker>();
+                        final HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
+                        final HashMap<String, Marker> markerName = new HashMap<String, Marker>();
 
-                    for (int i=1; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        rumah_pompa[i] = re.getString("nama_");
-                        id[i] = re.getString("id_rumah_pompa");
-                        String latitude = re.getString("latitude");
-                        String longitude = re.getString("longitude");
-                        String alert = re.getString("alert");
+                        for (int i=1; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            rumah_pompa[i] = re.getString("nama_");
+                            id[i] = re.getString("id_rumah_pompa");
+                            String latitude = re.getString("latitude");
+                            String longitude = re.getString("longitude");
+                            String alert = re.getString("alert");
 
-                        //Add to list autocomplete
-                        list_rumahpompa.add(rumah_pompa[i]);
-                        //Collections.sort(list_rumahpompa);
+                            //Add to list autocomplete
+                            list_rumahpompa.add(rumah_pompa[i]);
+                            //Collections.sort(list_rumahpompa);
 
-                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
-                                R.layout.item_search, list_rumahpompa);
-                        //dataAdapter.setDropDownViewResource(layoutItemId);
-                        ac_rumahpompa.setThreshold(1);
+                            ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
+                                    R.layout.item_search, list_rumahpompa);
+                            //dataAdapter.setDropDownViewResource(layoutItemId);
+                            ac_rumahpompa.setThreshold(1);
 
-                        dataAdapter.sort(new Comparator<String>() {
-                            @Override
-                            public int compare(String lhs, String rhs) {
-                                return lhs.compareTo(rhs);
+                            dataAdapter.sort(new Comparator<String>() {
+                                @Override
+                                public int compare(String lhs, String rhs) {
+                                    return lhs.compareTo(rhs);
+                                }
+                            });
+
+                            ac_rumahpompa.setAdapter(dataAdapter);
+
+                            data_cuaca = last_data_cuaca.get(i);
+                            data_tinggiair = last_data_tinggiair.get(i);
+                            data_pop = last_data_pop.get(i);
+
+                            Drawable sourceDrawable = getResources().getDrawable(R.drawable.ic_marker);
+                            Bitmap sourceBitmap = convertDrawableToBitmap(sourceDrawable);
+
+                            Marker rumahpompa = null;
+                            if (alert.equals("t")){
+                                mColorCode = Color.parseColor("#ff0000");
+                                mFinalBitmap = changeImageColor(sourceBitmap, mColorCode);
+                                int newWidth = (int) (mFinalBitmap.getWidth() * 1.5);
+                                int newHeight = (int) (mFinalBitmap.getHeight() * 1.5);
+                                Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, newWidth, newHeight, true);
+                                //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, 150, 150, false);
+                                rumahpompa = mMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)))
+                                        .title(rumah_pompa[i])
+                                        .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
+                                //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                             }
-                        });
+                            else if (alert.equals("f")){
+                                mColorCode = Color.parseColor("#32CD32");
+                                mFinalBitmap = changeImageColor(sourceBitmap, mColorCode);
+                                int newWidth = (int) (mFinalBitmap.getWidth() * 1.5);
+                                int newHeight = (int) (mFinalBitmap.getHeight() * 1.5);
+                                Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, newWidth, newHeight, true);
+                                //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, 150, 150, false);
+                                rumahpompa = mMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)))
+                                        .title(rumah_pompa[i])
+                                        .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
+                                //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
-                        ac_rumahpompa.setAdapter(dataAdapter);
-
-                        Drawable sourceDrawable = getResources().getDrawable(R.drawable.ic_marker);
-                        Bitmap sourceBitmap = convertDrawableToBitmap(sourceDrawable);
-
-                        Marker rumahpompa = null;
-                        if (alert.equals("t")){
-                            mColorCode = Color.parseColor("#ff0000");
-                            mFinalBitmap = changeImageColor(sourceBitmap, mColorCode);
-                            int newWidth = (int) (mFinalBitmap.getWidth() * 1.5);
-                            int newHeight = (int) (mFinalBitmap.getHeight() * 1.5);
-                            Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, newWidth, newHeight, true);
-                            //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, 150, 150, false);
-                            rumahpompa = mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)))
-                                    .title(rumah_pompa[i])
-                                    .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-                            //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                        }
-                        else if (alert.equals("f")){
-                            mColorCode = Color.parseColor("#32CD32");
-                            mFinalBitmap = changeImageColor(sourceBitmap, mColorCode);
-                            int newWidth = (int) (mFinalBitmap.getWidth() * 1.5);
-                            int newHeight = (int) (mFinalBitmap.getHeight() * 1.5);
-                            Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, newWidth, newHeight, true);
-                            //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, 150, 150, false);
-                            rumahpompa = mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)))
-                                    .title(rumah_pompa[i])
-                                    .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-                            //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-                        }
-
-                        markerMap.put(rumahpompa, id[i]);
-                        markerName.put(rumah_pompa[i], rumahpompa);
-                        markersList.add(rumahpompa);
-
-                        ac_rumahpompa.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
-                                // TODO Auto-generated method stub
-                                String nama_rumahpompa = arg0.getItemAtPosition(arg2).toString();
-                                getRumahPompabyName(nama_rumahpompa);
-
-                                Marker mark = markerName.get(nama_rumahpompa);
-                                mark.showInfoWindow();
                             }
-                        });
-                    }
 
-                    /*create for loop for get the latLngbuilder from the marker list*/
-                    builder = new LatLngBounds.Builder();
-                    for (Marker m : markersList) {
-                        builder.include(m.getPosition());
-                    }
-                    /*initialize the padding for map boundary*/
-                    int padding = 50;
-                    /*create the bounds from latlngBuilder to set into map camera*/
-                    final LatLngBounds bounds = builder.build();
-                    /*create the camera with bounds and padding to set into map*/
-                    cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                    /*call the map call back to know map is loaded or not*/
-                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                        @Override
-                        public void onMapLoaded() {
+                            markerMap.put(rumahpompa, id[i]);
+                            markerName.put(rumah_pompa[i], rumahpompa);
+                            markersList.add(rumahpompa);
+
+                            ac_rumahpompa.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
+                                    // TODO Auto-generated method stub
+                                    String nama_rumahpompa = arg0.getItemAtPosition(arg2).toString();
+                                    getRumahPompabyName(nama_rumahpompa);
+
+                                    Marker mark = markerName.get(nama_rumahpompa);
+                                    mark.showInfoWindow();
+                                }
+                            });
+                        }
+
+                        /*create for loop for get the latLngbuilder from the marker list*/
+                        builder = new LatLngBounds.Builder();
+                        for (Marker m : markersList) {
+                            builder.include(m.getPosition());
+                        }
+                        /*initialize the padding for map boundary*/
+                        int padding = 50;
+                        /*create the bounds from latlngBuilder to set into map camera*/
+                        final LatLngBounds bounds = builder.build();
+                        /*create the camera with bounds and padding to set into map*/
+                        cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        /*call the map call back to know map is loaded or not*/
+                        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                            @Override
+                            public void onMapLoaded() {
                             /*set animated zoom camera into map*/
-                            mMap.animateCamera(cu);
+                                mMap.animateCamera(cu);
 
-                        }
-                    });
-
-                    // Setting a custom info window adapter for the google map
-                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-                        // Use default InfoWindow frame
-                        @Override
-                        public View getInfoWindow(Marker arg0) {
-                            return null;
-                        }
-
-                        // Defines the contents of the InfoWindow
-                        @Override
-                        public View getInfoContents(Marker marker) {
-
-                            String id = markerMap.get(marker);
-
-                            // Getting view from the layout file info_window_layout
-                            View v = getActivity().getLayoutInflater().inflate(R.layout.infowindow, null);
-
-                            // Set desired height and width
-                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(600, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            layoutParams.setMargins(32, 32, 32, 32);
-                            v.setLayoutParams(layoutParams);
-
-                            //v.setLayoutParams(new RelativeLayout.LayoutParams(600, RelativeLayout.LayoutParams.WRAP_CONTENT));
-                            LinearLayout ll_cuaca = (LinearLayout) v.findViewById(R.id.ll_infowindow_cuaca);
-                            LinearLayout ll_air = (LinearLayout) v.findViewById(R.id.ll_infowindow_air);
-                            LinearLayout ll_pop = (LinearLayout) v.findViewById(R.id.ll_infowindow_pop);
-                            TextView tv_infowindow_title = (TextView) v.findViewById(R.id.tv_infowindow_title);
-                            TextView tv_infowindow_cuaca = (TextView) v.findViewById(R.id.tv_infowindow_cuaca);
-                            TextView tv_infowindow_tinggiair = (TextView) v.findViewById(R.id.tv_infowindow_tinggiair);
-                            TextView tv_infowindow_pop = (TextView) v.findViewById(R.id.tv_infowindow_pop);
-                            TextView tv_infowindow_nodata = ((TextView) v.findViewById(R.id.tv_infowindow_nodata));
-
-                            if ((last_data_cuaca.get(Integer.valueOf(id))).equals("-")){
-                                tv_infowindow_title.setText(rumah_pompa[Integer.valueOf(id)]);
-                                tv_infowindow_nodata.setText(AppConfig.NODATA);
-                                ll_cuaca.setVisibility(View.GONE);
-                                ll_air.setVisibility(View.GONE);
-                                ll_pop.setVisibility(View.GONE);
                             }
-                            else {
-                                tv_infowindow_nodata.setVisibility(View.GONE);
-                                tv_infowindow_title.setText(rumah_pompa[Integer.valueOf(id)]);
-                                tv_infowindow_cuaca.setText((last_data_cuaca.get(Integer.valueOf(id))));
-                                tv_infowindow_tinggiair.setText((last_data_tinggiair.get(Integer.valueOf(id))));
-                                tv_infowindow_pop.setText((last_data_pop.get(Integer.valueOf(id))));
+                        });
+
+                        // Setting a custom info window adapter for the google map
+                        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+                            // Use default InfoWindow frame
+                            @Override
+                            public View getInfoWindow(Marker arg0) {
+                                return null;
                             }
-                            // Returning the view containing InfoWindow contents
-                            return v;
 
-                        }
-                    });
+                            // Defines the contents of the InfoWindow
+                            @Override
+                            public View getInfoContents(Marker marker) {
 
-                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                        @Override
-                        public void onInfoWindowClick(Marker marker) {
-                            String id = markerMap.get(marker);
+                                String id = markerMap.get(marker);
 
-                            Intent intent = new Intent(getContext(),RumahPompaActivity.class);
-                            intent.putExtra("id", id);
-                            startActivity(intent);
-                        }
-                    });
+                                // Getting view from the layout file info_window_layout
+                                View v = getActivity().getLayoutInflater().inflate(R.layout.infowindow, null);
+
+                                // Set desired height and width
+                                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(600, LinearLayout.LayoutParams.WRAP_CONTENT);
+                                layoutParams.setMargins(32, 32, 32, 32);
+                                v.setLayoutParams(layoutParams);
+
+                                //v.setLayoutParams(new RelativeLayout.LayoutParams(600, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                                LinearLayout ll_cuaca = (LinearLayout) v.findViewById(R.id.ll_infowindow_cuaca);
+                                LinearLayout ll_air = (LinearLayout) v.findViewById(R.id.ll_infowindow_air);
+                                LinearLayout ll_pop = (LinearLayout) v.findViewById(R.id.ll_infowindow_pop);
+                                TextView tv_infowindow_title = (TextView) v.findViewById(R.id.tv_infowindow_title);
+                                TextView tv_infowindow_cuaca = (TextView) v.findViewById(R.id.tv_infowindow_cuaca);
+                                TextView tv_infowindow_tinggiair = (TextView) v.findViewById(R.id.tv_infowindow_tinggiair);
+                                TextView tv_infowindow_pop = (TextView) v.findViewById(R.id.tv_infowindow_pop);
+                                TextView tv_infowindow_nodata = ((TextView) v.findViewById(R.id.tv_infowindow_nodata));
+
+                                if ((last_data_cuaca.get(Integer.valueOf(id))).equals("-")){
+                                    tv_infowindow_title.setText(rumah_pompa[Integer.valueOf(id)]);
+                                    tv_infowindow_nodata.setText(AppConfig.NODATA);
+                                    ll_cuaca.setVisibility(View.GONE);
+                                    ll_air.setVisibility(View.GONE);
+                                    ll_pop.setVisibility(View.GONE);
+                                }
+                                else {
+                                    tv_infowindow_nodata.setVisibility(View.GONE);
+                                    tv_infowindow_title.setText(rumah_pompa[Integer.valueOf(id)]);
+                                    tv_infowindow_cuaca.setText((last_data_cuaca.get(Integer.valueOf(id))));
+                                    tv_infowindow_tinggiair.setText((last_data_tinggiair.get(Integer.valueOf(id))));
+                                    tv_infowindow_pop.setText((last_data_pop.get(Integer.valueOf(id))));
+                                }
+                                // Returning the view containing InfoWindow contents
+                                return v;
+
+                            }
+                        });
+
+                        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                            @Override
+                            public void onInfoWindowClick(Marker marker) {
+                                String id = markerMap.get(marker);
+
+                                Intent intent = new Intent(getContext(),RumahPompaActivity.class);
+                                intent.putExtra("id", id);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                    else {
+                        //Token Invalid
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -905,21 +933,27 @@ public class RumahPompaFragment extends Fragment{
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray jArr = response.getJSONArray("result");
-                    for (int i=0; i<jArr.length(); i++){
-                        JSONObject re = jArr.getJSONObject(i);
-                        int key = i;
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONArray jArr = response.getJSONArray("result");
+                        for (int i=0; i<jArr.length(); i++){
+                            JSONObject re = jArr.getJSONObject(i);
+                            int key = i;
 
-                        if (re.isNull("id_data")){
-                            last_data_cuaca.put(key, "-");
-                            last_data_tinggiair.put(key, "-");
-                            last_data_pop.put(key, "-");
+                            if (re.isNull("id_data")){
+                                last_data_cuaca.put(key, "-");
+                                last_data_tinggiair.put(key, "-");
+                                last_data_pop.put(key, "-");
+                            }
+                            else {
+                                last_data_cuaca.put(key, re.getString("cuaca"));
+                                last_data_tinggiair.put(key, re.getString("ketinggian_air"));
+                                last_data_pop.put(key, re.getString("chanceofrain"));
+                            }
                         }
-                        else {
-                            last_data_cuaca.put(key, re.getString("cuaca"));
-                            last_data_tinggiair.put(key, re.getString("ketinggian_air"));
-                            last_data_pop.put(key, re.getString("chanceofrain"));
-                        }
+                    }
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -991,15 +1025,21 @@ public class RumahPompaFragment extends Fragment{
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    String latitude = response.getString("latitude");
-                    String longitude = response.getString("longitude");
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONObject result = response.getJSONObject("result");
+                        String latitude = result.getString("latitude");
+                        String longitude = result.getString("longitude");
 
-                    //Toast.makeText(getActivity().getApplicationContext(), latitude + " " + longitude, Toast.LENGTH_SHORT).show();
-                    LatLng latlng = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latlng, 15);
-                    mMap.animateCamera(cameraUpdate);
-                    //mMap.moveCamera(cameraUpdate);
-
+                        //Toast.makeText(getActivity().getApplicationContext(), latitude + " " + longitude, Toast.LENGTH_SHORT).show();
+                        LatLng latlng = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latlng, 15);
+                        mMap.animateCamera(cameraUpdate);
+                        //mMap.moveCamera(cameraUpdate);
+                    }
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

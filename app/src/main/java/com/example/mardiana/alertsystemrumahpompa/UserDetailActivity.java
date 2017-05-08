@@ -83,21 +83,28 @@ public class UserDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    nama = response.getString("nama_user");
-                    nohp = response.getString("no_telp_user");
-                    alamat = response.getString("alamat_user");
-                    getRoleUser(username, new ServerCallback() {
-                        @Override
-                        public void onSuccess(String role) {
-                            // do stuff here
-                            tv_username.setText(username);
-                            tv_rumahpompa.setText(rumahpompa);
-                            tv_name.setText(nama);
-                            tv_address.setText(alamat);
-                            tv_phonenumber.setText(nohp);
-                            tv_role.setText(role);
-                        }
-                    });
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONObject result = response.getJSONObject("result");
+                        nama = result.getString("nama_user");
+                        nohp = result.getString("no_telp_user");
+                        alamat = result.getString("alamat_user");
+                        getRoleUser(username, new ServerCallback() {
+                            @Override
+                            public void onSuccess(String role) {
+                                // do stuff here
+                                tv_username.setText(username);
+                                tv_rumahpompa.setText(rumahpompa);
+                                tv_name.setText(nama);
+                                tv_address.setText(alamat);
+                                tv_phonenumber.setText(nohp);
+                                tv_role.setText(role);
+                            }
+                        });
+                    }
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                     //getRoleUser(username);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -117,10 +124,17 @@ public class UserDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 try {
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONObject result = response.getJSONObject("result");
+                        String role = result.getString("nama_role");
+                        callback.onSuccess(role);
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                     //JSONObject jObj = new JSONObject(response);
                     //JSONObject result = jObj.getJSONObject("result");
-                    String role = response.getString("nama_role");
-                    callback.onSuccess(role);
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -243,8 +257,14 @@ public class UserDetailActivity extends AppCompatActivity {
 
                     if (status) {
                         Toast.makeText(UserDetailActivity.this, AppConfig.DELETE_SUCCESS, Toast.LENGTH_SHORT).show();
+                        finish();
                     } else {
-                        Toast.makeText(UserDetailActivity.this, AppConfig.DELETE_FAILED, Toast.LENGTH_SHORT).show();
+                        String kode = response.getString("kode");
+                        if (kode.equals("1")){
+                            Toast.makeText(UserDetailActivity.this, AppConfig.DELETE_FAILED, Toast.LENGTH_SHORT).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

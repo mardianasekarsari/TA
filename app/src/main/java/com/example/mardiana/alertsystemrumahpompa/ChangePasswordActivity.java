@@ -162,7 +162,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                             showErrorDialog("Masukkan Password Baru yang Berbeda dengan Password Lama");
                         }
                         else if (kode.equals("4")){
-                            Toast.makeText(ChangePasswordActivity.this, "Token Tidak Valid", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ChangePasswordActivity.this, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                         }
                         //Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }

@@ -132,50 +132,14 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
         });
 
         //getAllUserRumahPompa();
-        getAllUserRumahPompa(new ServerCallback() {
+        /*getAllUserRumahPompa(new ServerCallback() {
             @Override
             public void onSuccess(Map<String, String> list) {
                 // call web service get all user
+                getAllUser(list);
 
-                final Map<String, String> lists = list;
-                mVolleyService.getAll(AppConfig.URL_USER, apikey, new VolleyResponseListener() {
-                    @Override
-                    public void onError(String message) {
-                        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray result = response.getJSONArray("result");
-
-                            for (int i=0; i<result.length(); i++){
-                                JSONObject re = result.getJSONObject(i);
-                                final String username = re.getString("username");
-                                String nama_user = re.getString("nama_user");
-                                String nohp = re.getString("no_telp_user");
-
-                                final User petugas = new User();
-                                petugas.setUsername(username);
-                                petugas.setNama(nama_user);
-                                petugas.setNohp(nohp);
-                                petugas.setRumahpompa(lists.get(username));
-                                userlist.add(petugas);
-                            }
-                            Collections.sort(userlist, new Comparator<User>() {
-                                @Override
-                                public int compare(User a1, User a2) {
-                                    return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
-                                }
-                            });
-                            lv.setAdapter(new UserAdapter(getActivity(), userlist));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
             }
-        });
+        });*/
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -194,8 +158,10 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
         return rootView;
     }
 
-    private void getAllUserRumahPompa(final ServerCallback callback){
-        mVolleyService.getAll(AppConfig.URL_GETUSERRUMAHPOMPA, apikey, new VolleyResponseListener() {
+    public  void getAllUser(final Map<String, String> lists){
+
+        mVolleyService.getAll(AppConfig.URL_USER, apikey, new VolleyResponseListener() {
+
             @Override
             public void onError(String message) {
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
@@ -204,16 +170,69 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray result = response.getJSONArray("result");
+                    boolean status = response.getBoolean("status");
+                    //Toast.makeText(mContext, String.valueOf(status), Toast.LENGTH_SHORT).show();
+                    if (status) {
+                        JSONArray result = response.getJSONArray("result");
 
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        String username = re.getString("username");
-                        String nama_rumahpompa = re.getString("rumahpompa");
-                        user_rumahpompa.put(username, nama_rumahpompa);
+                        for (int i=0; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            final String username = re.getString("username");
+                            String nama_user = re.getString("nama_user");
+                            String nohp = re.getString("no_telp_user");
 
+                            final User petugas = new User();
+                            petugas.setUsername(username);
+                            petugas.setNama(nama_user);
+                            petugas.setNohp(nohp);
+                            petugas.setRumahpompa(lists.get(username));
+                            userlist.add(petugas);
+                        }
+                        Collections.sort(userlist, new Comparator<User>() {
+                            @Override
+                            public int compare(User a1, User a2) {
+                                return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
+                            }
+                        });
+                        lv.setAdapter(new UserAdapter(getActivity(), userlist));
                     }
-                    callback.onSuccess(user_rumahpompa);
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void getAllUserRumahPompa(final ServerCallback callback){
+        mVolleyService.getAll(AppConfig.URL_USERRUMAHPOMPA, apikey, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+
+                    boolean status = response.getBoolean("status");
+
+                    if (status) {
+                        JSONArray result = response.getJSONArray("result");
+
+                        for (int i=0; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            String username = re.getString("username");
+                            String nama_rumahpompa = re.getString("rumahpompa");
+                            user_rumahpompa.put(username, nama_rumahpompa);
+                        }
+                        callback.onSuccess(user_rumahpompa);
+                    }
+                    else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -342,16 +361,24 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
         return true;
     }
 
-    private void updateList(ArrayList<User> mList) {
+    /*private void updateList(ArrayList<User> mList) {
         this.userlist.clear();
         this.userlist.addAll(mList);
+    }*/
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.userlist.clear();
+        getAllUserRumahPompa(new ServerCallback() {
+            @Override
+            public void onSuccess(Map<String, String> list) {
+                // call web service get all user
+                getAllUser(list);
+
+            }
+        });
     }
 
-    /*@Override
-    public void onResume() {
-        // fetch updated data
-        UserAdapter.updateList(mChatDetails);
-        UserAdapter.notifyDataSetChanged();
-    }*/
 
 }

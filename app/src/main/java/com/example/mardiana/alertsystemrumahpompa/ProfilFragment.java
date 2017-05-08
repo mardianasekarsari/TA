@@ -245,9 +245,17 @@ public class ProfilFragment extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    rumahpompa = response.getString("nama_");
+                    boolean status = response.getBoolean("status");
 
-                    tv_petugas_rumahpompa.setText(rumahpompa);
+                    if (status) {
+                        JSONObject result = response.getJSONObject("result");
+
+                        rumahpompa = result.getString("nama_");
+
+                        tv_petugas_rumahpompa.setText(rumahpompa);
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -331,7 +339,12 @@ public class ProfilFragment extends Fragment {
                         getActivity().finish();
                     } else {
                         String errorMsg = response.getString("msg");
-                        Toast.makeText(mContext, "Logout Gagal", Toast.LENGTH_SHORT).show();
+                        String kode = response.getString("kode");
+                        if (kode.equals("1")){
+                            Toast.makeText(mContext, "Logout Gagal", Toast.LENGTH_SHORT).show();
+                        }else if (kode.equals("2")){
+                            Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

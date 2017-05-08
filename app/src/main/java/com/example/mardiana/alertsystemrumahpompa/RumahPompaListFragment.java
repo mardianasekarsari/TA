@@ -123,7 +123,7 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
 
         //getAllRumahPompa();
 
-        String[] values = new String[] {"All", "Berpotensi Banjir", "Tidak Berpotensi Banjir"};
+        String[] values = new String[] {"Semua Rumah Pompa", "Berpotensi Banjir", "Tidak Berpotensi Banjir"};
         final ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < values.length; ++i) {
             list.add(values[i]);
@@ -141,7 +141,7 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String status = spinner_status.getSelectedItem().toString();
                 /*Toast.makeText(getActivity().getApplicationContext(), status, Toast.LENGTH_SHORT).show();*/
-                if (status.equals("Semua")){
+                if (status.equals("Semua Rumah Pompa")){
                     getAllRumahPompa();
                 }
                 else {
@@ -212,46 +212,53 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray result = response.getJSONArray("result");
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONArray result = response.getJSONArray("result");
 
-                    ArrayList<RumahPompa> temp = new ArrayList<RumahPompa>();
-                    String alert = "";
-                    filter_rumah_pompa = new String[result.length()];
-                    filter_id = new String[result.length()];
-                    filter_jalan = new String[result.length()];
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        filter_rumah_pompa[i] = re.getString("nama_");
-                        filter_id[i] = re.getString("id_rumah_pompa");
-                        filter_jalan[i] = re.getString("jalan");
-                        alert = re.getString("alert");
+                        ArrayList<RumahPompa> temp = new ArrayList<RumahPompa>();
+                        String alert = "";
+                        filter_rumah_pompa = new String[result.length()];
+                        filter_id = new String[result.length()];
+                        filter_jalan = new String[result.length()];
+                        for (int i=0; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            filter_rumah_pompa[i] = re.getString("nama_");
+                            filter_id[i] = re.getString("id_rumah_pompa");
+                            filter_jalan[i] = re.getString("jalan");
+                            alert = re.getString("alert");
 
-                        if (!filter_id[i].equals("0")){
-                            RumahPompa rumahpompa = new RumahPompa();
-                            rumahpompa.setNama(filter_rumah_pompa[i]);
-                            rumahpompa.setAlamat(filter_jalan[i]);
-                            temp.add(rumahpompa);
+                            if (!filter_id[i].equals("0")){
+                                RumahPompa rumahpompa = new RumahPompa();
+                                rumahpompa.setNama(filter_rumah_pompa[i]);
+                                rumahpompa.setAlamat(filter_jalan[i]);
+                                temp.add(rumahpompa);
+                            }
+
                         }
-
+                        if (alert.equals("t")){
+                            listbanjir = temp;
+                            Collections.sort(listbanjir, new Comparator<RumahPompa>() {
+                                @Override
+                                public int compare(RumahPompa a1, RumahPompa a2) {
+                                    return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
+                                }
+                            });
+                            lv.setAdapter(new RumahPompaAdapter(getActivity(), listbanjir));
+                        }else {
+                            listaman = temp;
+                            Collections.sort(listaman, new Comparator<RumahPompa>() {
+                                @Override
+                                public int compare(RumahPompa a1, RumahPompa a2) {
+                                    return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
+                                }
+                            });
+                            lv.setAdapter(new RumahPompaAdapter(getActivity(), listaman));
+                        }
                     }
-                    if (alert.equals("t")){
-                        listbanjir = temp;
-                        Collections.sort(listbanjir, new Comparator<RumahPompa>() {
-                            @Override
-                            public int compare(RumahPompa a1, RumahPompa a2) {
-                                return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
-                            }
-                        });
-                        lv.setAdapter(new RumahPompaAdapter(getActivity(), listbanjir));
-                    }else {
-                        listaman = temp;
-                        Collections.sort(listaman, new Comparator<RumahPompa>() {
-                            @Override
-                            public int compare(RumahPompa a1, RumahPompa a2) {
-                                return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
-                            }
-                        });
-                        lv.setAdapter(new RumahPompaAdapter(getActivity(), listaman));
+                    else {
+                        //Invalid Token
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (JSONException e) {
@@ -356,31 +363,37 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    JSONArray result = response.getJSONArray("result");
-                    rumah_pompa = new String[result.length()];
-                    id = new String[result.length()];
-                    jalan = new String[result.length()];
-                    ArrayList<RumahPompa> temp = new ArrayList<RumahPompa>();
-                    for (int i=1; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        rumah_pompa[i] = re.getString("nama_");
-                        Toast.makeText(mContext, rumah_pompa[i], Toast.LENGTH_SHORT).show();
-                        id[i] = re.getString("id_rumah_pompa");
-                        jalan[i] = re.getString("jalan");
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONArray result = response.getJSONArray("result");
+                        rumah_pompa = new String[result.length()];
+                        id = new String[result.length()];
+                        jalan = new String[result.length()];
+                        ArrayList<RumahPompa> temp = new ArrayList<RumahPompa>();
+                        for (int i=1; i<result.length(); i++){
+                            JSONObject re = result.getJSONObject(i);
+                            rumah_pompa[i] = re.getString("nama_");
+                            id[i] = re.getString("id_rumah_pompa");
+                            jalan[i] = re.getString("jalan");
 
-                        RumahPompa rumahpompa = new RumahPompa();
-                        rumahpompa.setNama(rumah_pompa[i]);
-                        rumahpompa.setAlamat(jalan[i]);
-                        temp.add(rumahpompa);
-                    }
-                    rumahpompalist = temp;
-                    Collections.sort(rumahpompalist, new Comparator<RumahPompa>() {
-                        @Override
-                        public int compare(RumahPompa a1, RumahPompa a2) {
-                            return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
+                            RumahPompa rumahpompa = new RumahPompa();
+                            rumahpompa.setNama(rumah_pompa[i]);
+                            rumahpompa.setAlamat(jalan[i]);
+                            temp.add(rumahpompa);
                         }
-                    });
-                    lv.setAdapter(new RumahPompaAdapter(getActivity(), rumahpompalist));
+                        rumahpompalist = temp;
+                        Collections.sort(rumahpompalist, new Comparator<RumahPompa>() {
+                            @Override
+                            public int compare(RumahPompa a1, RumahPompa a2) {
+                                return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
+                            }
+                        });
+                        lv.setAdapter(new RumahPompaAdapter(getActivity(), rumahpompalist));
+                    }
+                    else {
+                        //Invalid Token
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -457,12 +470,18 @@ public class RumahPompaListFragment extends Fragment implements SearchView.OnQue
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    String id = response.getString("id_rumah_pompa");
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONObject result = response.getJSONObject("result");
+                        String id = result.getString("id_rumah_pompa");
 
-                    Intent intent = new Intent(getActivity().getApplicationContext(), RumahPompaActivity.class);
-                    // sending data to new activity
-                    intent.putExtra("id", id);
-                    startActivity(intent);
+                        Intent intent = new Intent(getActivity().getApplicationContext(), RumahPompaActivity.class);
+                        // sending data to new activity
+                        intent.putExtra("id", id);
+                        startActivity(intent);
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
