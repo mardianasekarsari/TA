@@ -11,7 +11,8 @@
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="horizontal">
             <AutoCompleteTextView
                 android:id="@+id/ac_rumahpompa"
@@ -36,7 +37,22 @@
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="0dp"
+            android:layout_weight="6" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:background="@drawable/transparant_background"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/tv_tgl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/register"
+                android:gravity="center"/>
+        </LinearLayout>
     </LinearLayout>
 
     <android.support.design.widget.CoordinatorLayout
@@ -239,7 +255,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:paddingRight="16dp"
-                                    android:text="@string/kedalamansaluran"
+                                    android:text="@string/tinggisaluran"
                                     android:textSize="14sp"/>
                             </LinearLayout>
                         </LinearLayout>

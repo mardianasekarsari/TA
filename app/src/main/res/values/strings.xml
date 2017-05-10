@@ -44,10 +44,10 @@
     <string name="title_activity_petugas_home">Petugas</string>
     <string name="ketinggian_air">Ketinggian Air (cm)</string>
     <string name="cuaca">Cuaca</string>
-    <string name="threshold">Threshold Ketinggian Air (cm)</string>
+    <string name="threshold">Ambang Batas Ketinggian Air (cm)</string>
     <string name="pop">Kemungkinan Terjadi Hujan (%)</string>
     <string name="title_activity_maps">Map</string>
-    <string name="tinggisaluran">Ketinggian Saluran Air (cm)</string>
+    <string name="tinggisaluran">Ketinggian Sensor (cm)</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="kedalamansaluran">Kedalaman Saluran (cm)</string>

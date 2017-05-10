@@ -94,11 +94,17 @@ public class UserDetailActivity extends AppCompatActivity {
                             public void onSuccess(String role) {
                                 // do stuff here
                                 tv_username.setText(username);
-                                tv_rumahpompa.setText(rumahpompa);
+                                //tv_rumahpompa.setText(rumahpompa);
                                 tv_name.setText(nama);
                                 tv_address.setText(alamat);
                                 tv_phonenumber.setText(nohp);
                                 tv_role.setText(role);
+                            }
+                        });
+                        getUserRumahPompa(username, new ServerCallback() {
+                            @Override
+                            public void onSuccess(String nama_rumahpompa) {
+                                tv_rumahpompa.setText(nama_rumahpompa);
                             }
                         });
                     }
@@ -129,6 +135,36 @@ public class UserDetailActivity extends AppCompatActivity {
                         JSONObject result = response.getJSONObject("result");
                         String role = result.getString("nama_role");
                         callback.onSuccess(role);
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
+                    //JSONObject jObj = new JSONObject(response);
+                    //JSONObject result = jObj.getJSONObject("result");
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void getUserRumahPompa(final String username, final ServerCallback callback){
+        String url = AppConfig.URL_USERRUMAHPOMPA + username;
+        mVolleyService.getBy(url, apikey, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    Boolean status = response.getBoolean("status");
+                    if (status){
+                        JSONObject result = response.getJSONObject("result");
+                        String nama_rumahpompa = result.getString("nama_");
+                        callback.onSuccess(nama_rumahpompa);
                     }else {
                         Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }

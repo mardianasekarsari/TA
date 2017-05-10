@@ -84,7 +84,6 @@ public class AddUserActivity extends AppCompatActivity {
 
         SharedPreferences token = getSharedPreferences(AppConfig.PREF_APIKEY, 0);
         apikey = token.getString("apikey", "");
-        Toast.makeText(mContext, apikey, Toast.LENGTH_SHORT).show();
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
