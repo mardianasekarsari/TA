@@ -1,40 +1,25 @@
 package com.example.mardiana.alertsystemrumahpompa;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -127,7 +112,7 @@ public class EditProfilActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -168,6 +153,7 @@ public class EditProfilActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Log.d("EditProfil", "JsonException");
                 }
+                return null;
             }
         });
     }
@@ -238,7 +224,7 @@ public class EditProfilActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -256,61 +242,10 @@ public class EditProfilActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getrumahpompabyId(final String id) {
-        String tag_string_req = "req_login";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETRUMAHPOMPABYID, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                //Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-
-                    rumahpompa = result.getString("nama_");
-                    //spinner_rumahpompa.setHint(rumahpompa);
-                    edt_rumahpompa.setText(rumahpompa);
-                    //Toast.makeText(EditProfilActivity.this, rumahpompa, Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(EditProfilActivity.this, "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(EditProfilActivity.this.getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

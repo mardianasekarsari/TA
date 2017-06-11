@@ -4,26 +4,29 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.*;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Timer;
+import android.os.Handler;
+import java.util.TimerTask;
+import java.util.logging.LogRecord;
 
 public class RumahPompaActivity extends AppCompatActivity {
 
@@ -36,10 +39,12 @@ public class RumahPompaActivity extends AppCompatActivity {
     private String role, apikey;
     Context mContext;
     Volley mVolleyService;
+    Timer timer = new Timer();
+    TimerTask updateProfile = new CustomTimerTask(this);
 
     private TextView tv_rumahpompa_nama, tv_rumahpompa_alamat, tv_rumahpompa_nohp,
             tv_rumahpompa_threshold, tv_rumahpompa_tinggiair, tv_rumahpompa_cuaca, tv_rumahpompa_pop,
-            tv_rumahpompa_latitude, tv_rumahpompa_longitude, tv_rumahpompa_status, tv_rumahpompa_kedalamansaluran;
+            tv_rumahpompa_latitude, tv_rumahpompa_longitude, tv_rumahpompa_status, tv_rumahpompa_kedalamansaluran, tv_pompa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,14 +85,69 @@ public class RumahPompaActivity extends AppCompatActivity {
         tv_rumahpompa_longitude = ((TextView) findViewById(R.id.tv_rumahpompa_longitude));
         tv_rumahpompa_status = ((TextView) findViewById(R.id.tv_rumahpompa_statusalert));
         tv_rumahpompa_kedalamansaluran = ((TextView) findViewById(R.id.tv_rumahpompa_kedalamansaluran));
+        tv_pompa = ((TextView) findViewById(R.id.tv_rumahpompa_pompa));
+        Button btn_viewlog = ((Button) findViewById(R.id.btn_viewlog));
+
 
         //if (role.equals(AppConfig.PENGAWAS)){
-            getrumahpompabyId(id_rumahpompa);
-            getData(id_rumahpompa);
+        /*getrumahpompabyId(id_rumahpompa);
+        getData(id_rumahpompa);*/
         /*}else if (role.equals(AppConfig.ADMIN)){
             getrumahpompabyId(id_rumahpompa);
             getData(id_rumahpompa);
         }*/
+        refresh();
+        timer.scheduleAtFixedRate(updateProfile, 0, 300000);
+
+        btn_viewlog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, LogActivity.class);
+                intent.putExtra("rumahpompa", id_rumahpompa);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timer.cancel();
+    }
+
+    private void refresh(){
+        getrumahpompabyId(id_rumahpompa);
+        getData(id_rumahpompa);
+    }
+
+    public class CustomTimerTask extends TimerTask {
+
+
+        private Context context;
+        private Handler mHandler = new Handler();
+
+        public CustomTimerTask(Context con) {
+            this.context = con;
+        }
+
+
+
+        @Override
+        public void run() {
+            new Thread(new Runnable() {
+
+                public void run() {
+
+                    mHandler.post(new Runnable() {
+                        public void run() {
+                            refresh();
+                        }
+                    });
+                }
+            }).start();
+
+        }
+
     }
 
     private void getrumahpompabyId(final String id) {
@@ -99,7 +159,7 @@ public class RumahPompaActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -113,6 +173,7 @@ public class RumahPompaActivity extends AppCompatActivity {
                         String longitude = result.getString("longitude");
                         String statusalert = result.getString("alert");
                         String kedalamansaluran = result.getString("ketinggian_sungai");
+                        String statuspompa = result.getString("status_pompa");
 
                         tv_rumahpompa_nama.setText(nama);
                         tv_rumahpompa_alamat.setText(alamat);
@@ -126,6 +187,11 @@ public class RumahPompaActivity extends AppCompatActivity {
                             tv_rumahpompa_status.setText("Berpotensi Banjir");
                         else
                             tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
+
+                        if (statuspompa.equals("t"))
+                            tv_pompa.setText("Menyala");
+                        else
+                            tv_pompa.setText("Mati");
                     }else {
                         Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
@@ -134,6 +200,7 @@ public class RumahPompaActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -216,7 +283,7 @@ public class RumahPompaActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -244,6 +311,7 @@ public class RumahPompaActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -376,7 +444,7 @@ public class RumahPompaActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     if (status){
@@ -386,13 +454,14 @@ public class RumahPompaActivity extends AppCompatActivity {
                         String kode = response.getString("kode");
                         if (kode.equals("1")){
                             Toast.makeText(RumahPompaActivity.this, AppConfig.DELETE_FAILED, Toast.LENGTH_SHORT).show();
-                        }else if (kode.equals("1")){
+                        }else if (kode.equals("2")){
                             Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                         }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -449,4 +518,5 @@ public class RumahPompaActivity extends AppCompatActivity {
         // Adding request to request queue
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }*/
+
 }

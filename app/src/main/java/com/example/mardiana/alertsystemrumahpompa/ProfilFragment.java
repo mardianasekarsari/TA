@@ -9,31 +9,18 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -117,7 +104,6 @@ public class ProfilFragment extends Fragment {
 
         SharedPreferences token = getActivity().getSharedPreferences(AppConfig.PREF_APIKEY, MODE_PRIVATE);
         apikey = token.getString("apikey", "");
-        /*Toast.makeText(mContext, apikey, Toast.LENGTH_SHORT).show();*/
 
         tv_petugas_usernama = ((TextView) view.findViewById(R.id.tv_petugas_username));
         tv_petugas_nama = ((TextView) view.findViewById(R.id.tv_petugas_nama));
@@ -126,8 +112,6 @@ public class ProfilFragment extends Fragment {
         tv_petugas_rumahpompa = ((TextView) view.findViewById(R.id.tv_petugas_rumahpompa));
         ll_rumahpompa = ((LinearLayout) view.findViewById(R.id.ll_rumahpompa));
 
-
-        //HashMap<String, String> user = db.getUserDetails();
         HashMap<String, String> user = session.getUser();
 
         final String username = user.get(SessionManager.KEY_USERNAME);
@@ -136,12 +120,6 @@ public class ProfilFragment extends Fragment {
         String alamat = user.get(SessionManager.KEY_ADDRESS);
         String idrumahpompa = user.get(SessionManager.KEY_RUMAHPOMPAID);
         String role = user.get(SessionManager.KEY_ROLE);
-
-        /*final String username = user.get("username");
-        String nama = user.get("nama");
-        String nohp = user.get("telepon_user");
-        String alamat = user.get("alamat_user");
-        String idrumahpompa = user.get("rumahpompa");*/
 
         if (role.equals(AppConfig.ADMIN) || role.equals(AppConfig.PENGAWAS)){
             ll_rumahpompa.setVisibility(View.GONE);
@@ -243,7 +221,7 @@ public class ProfilFragment extends Fragment {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -260,62 +238,10 @@ public class ProfilFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getrumahpompabyId(final String id) {
-        String tag_string_req = "req_rumahpompa";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETRUMAHPOMPABYID, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                //Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-
-                    rumahpompa = result.getString("nama_");
-
-                    tv_petugas_rumahpompa.setText(rumahpompa);
-                    //Toast.makeText(getActivity().getApplicationContext(), rumahpompa, Toast.LENGTH_SHORT).show();
-
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getActivity().getApplicationContext(), "Json4 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private void delete(String username){
         //String post_data = Uri.encode()
@@ -329,7 +255,7 @@ public class ProfilFragment extends Fragment {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -350,6 +276,7 @@ public class ProfilFragment extends Fragment {
                     e.printStackTrace();
                     Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                return null;
             }
         });
     }

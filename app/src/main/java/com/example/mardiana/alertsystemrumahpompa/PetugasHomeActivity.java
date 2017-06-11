@@ -82,6 +82,7 @@ public class PetugasHomeActivity extends AppCompatActivity
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new ProfilFragment(), "Profil");
         adapter.addFragment(new RumahPompaFragment(), "Rumah Pompa");
+        adapter.addFragment(new LogFragment(), "Catatan");
         viewPager.setAdapter(adapter);
     }
 

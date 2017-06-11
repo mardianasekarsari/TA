@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.*;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -15,16 +15,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class AddRumahPompaActivity extends AppCompatActivity {
     private TextView toolbar_title;
@@ -34,6 +34,7 @@ public class AddRumahPompaActivity extends AppCompatActivity {
     private EditText edt_name, edt_address, edt_phone, edt_threshold, edt_latitude, edt_longitude, edt_kedalamansaluran;
     private Context mContext;
     private Volley mVolleyService;
+    private int PLACE_PICKER_REQUEST = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,26 @@ public class AddRumahPompaActivity extends AppCompatActivity {
         edt_longitude = ((EditText) findViewById(R.id.edt_rumahpompa_longitude));
         edt_kedalamansaluran = ((EditText) findViewById(R.id.edt_rumahpompa_kedalamansaluran));
 
+        Button btn_map = (Button) findViewById(R.id.btn_launchmap);
+        btn_map.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                try {
+                    //menjalankan place picker
+                    startActivityForResult(builder.build(AddRumahPompaActivity.this), PLACE_PICKER_REQUEST);
+
+                    // check apabila <a title="Solusi Tidak Bisa Download Google Play Services di Android" href="http://www.twoh.co/2014/11/solusi-tidak-bisa-download-google-play-services-di-android/" target="_blank">Google Play Services tidak terinstall</a> di HP
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                    android.util.Log.e("Place Picker", e.getMessage());
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                    android.util.Log.e("Place Picker", e.getMessage());
+                }
+            }
+        });
+
         btn_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,6 +104,22 @@ public class AddRumahPompaActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(data, this);
+                /*String toastMsg = String.format(
+                        "Place: %s \n" +
+                                "Alamat: %s \n" +
+                                "Latlng %s \n", place.getName(), place.getAddress(), place.getLatLng().latitude+" "+place.getLatLng().longitude);*/
+                edt_latitude.setText(String.valueOf(place.getLatLng().latitude) );
+                edt_longitude.setText(String.valueOf(place.getLatLng().longitude) );
+            }
+        }
+    }
+
     private void store(final String name, final String phone, final String address, final String threshold,
                        final String depth, final String latitude, final String longitude){
         mVolleyService.addRumahPompa(name, phone, address, threshold, depth, latitude, longitude, apikey, new VolleyResponseListener() {
@@ -92,7 +129,7 @@ public class AddRumahPompaActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -124,6 +161,7 @@ public class AddRumahPompaActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }

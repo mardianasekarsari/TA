@@ -62,8 +62,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
             notificationUtils.playNotificationSound();
 
-            //Toast.makeText(, "LAlalala", Toast.LENGTH_SHORT).show();
-            //PetugasHomeActivity.showToast(this, "lalalla");
         }else{
             // If the app is in background, firebase itself handles the notification
         }

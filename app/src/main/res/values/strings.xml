@@ -44,7 +44,7 @@
     <string name="title_activity_petugas_home">Petugas</string>
     <string name="ketinggian_air">Ketinggian Air (cm)</string>
     <string name="cuaca">Cuaca</string>
-    <string name="threshold">Ambang Batas Ketinggian Air (cm)</string>
+    <string name="threshold">Ambang Batas Tinggi Air (cm)</string>
     <string name="pop">Kemungkinan Terjadi Hujan (%)</string>
     <string name="title_activity_maps">Map</string>
     <string name="tinggisaluran">Ketinggian Sensor (cm)</string>
@@ -54,4 +54,7 @@
     <string name="status">Status Potensi Banjir</string>
 
     <string name="searchrumahpompa">Masukkan Nama Rumah Pompa</string>
+    <string name="download">Unduh</string>
+    <string name="catatan">Catatan</string>
+    <string name="pompa">Pompa Air</string>
 </resources>

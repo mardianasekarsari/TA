@@ -20,9 +20,12 @@ public class AppConfig {
     public static String URL_APIKEY = url + "apikey/";
     public static String URL_TOKEN = url + "token/";
     public static String URL_USERRUMAHPOMPA = url + "user-rumahpompa/";
+    public static String URL_LOG = url + "log/";
+
 
     public static String URL_GETRUMAHPOMPABYNAME = url + "rumah_pompa/getrumahpompabyName";
     public static String URL_GETRUMAHPOMPABYSTATUS = url + "rumah_pompa/getrumahpompabyStatus";
+    public static String URL_REPORT = url + "data/report";
 
     public static String URL_GETUSERRUMAHPOMPA = url + "rumah_pompa/getUserRumahpompa";
 

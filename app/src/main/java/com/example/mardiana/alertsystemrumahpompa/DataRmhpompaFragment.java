@@ -9,11 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,15 +20,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,8 +27,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -218,66 +203,6 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
         mListener = null;
     }
 
-    /*private void getAllRumahPompa(){
-        String tag_string_req = "req_getallrumahpompa";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETRUMAHPOMPA, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONArray result = jObj.getJSONArray("result");
-                    rumah_pompa = new String[result.length()];
-                    id = new String[result.length()];
-                    jalan = new String[result.length()];
-                    ArrayList<RumahPompa> temp = new ArrayList<RumahPompa>();
-                    for (int i=1; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        rumah_pompa[i] = re.getString("nama_");
-                        id[i] = re.getString("id_rumah_pompa");
-                        jalan[i] = re.getString("jalan");
-
-                        RumahPompa rumahpompa = new RumahPompa();
-                        rumahpompa.setNama(rumah_pompa[i]);
-                        rumahpompa.setAlamat(jalan[i]);
-                        temp.add(rumahpompa);
-                    }
-                    rumahpompalist = temp;
-                    Collections.sort(rumahpompalist, new Comparator<RumahPompa>() {
-                        @Override
-                        public int compare(RumahPompa a1, RumahPompa a2) {
-                            return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
-                        }
-                    });
-                    lv.setAdapter(new RumahPompaAdapter(getActivity(), rumahpompalist));
-
-                    //Toast.makeText(getActivity().getApplicationContext(), rumah_pompa[0], Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        });
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
-
     private void getAllRumahPompa(){
         mVolleyService.getAll(AppConfig.URL_RUMAHPOMPA, apikey, new VolleyResponseListener() {
             @Override
@@ -286,7 +211,7 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     if (status){
@@ -321,6 +246,7 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -333,7 +259,7 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     if (status){
@@ -352,62 +278,10 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getRumahPompabyName(final String name){
-        String tag_string_req = "req_getrumahpompabyname";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETRUMAHPOMPABYNAME, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //
-                //showProgress(false);
-                try {
-                    //
-                    JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-                    String id = result.getString("id_rumah_pompa");
-
-                    Intent intent = new Intent(getActivity().getApplicationContext(), RumahPompaActivity.class);
-                    // sending data to new activity
-                    intent.putExtra("id", id);
-                    startActivity(intent);
-
-
-                } catch (JSONException e) {
-                    //JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getActivity().getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "GetData Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("rumah_pompa", name);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private void showbyStatus(final String status) {
         String url = AppConfig.URL_RUMAHPOMPA + status + "/status";
@@ -419,7 +293,7 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     if (status){
@@ -472,95 +346,10 @@ public class DataRmhpompaFragment extends Fragment implements SearchView.OnQuery
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void showbyStatus(final String status){
-        String tag_string_req = "req_getrumahpompabyname";
-        //showProgress(true);
-        Toast.makeText(mContext, AppConfig.URL_RUMAHPOMPA+"?status="+status, Toast.LENGTH_SHORT).show();
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETRUMAHPOMPABYSTATUS, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //
-                //showProgress(false);
-                try {
-                    //
-                    JSONObject jObj = new JSONObject(response);
-                    JSONArray result = jObj.getJSONArray("result");
-
-                    ArrayList<RumahPompa> temp = new ArrayList<RumahPompa>();
-                    String alert = "";
-                    filter_rumah_pompa = new String[result.length()];
-                    filter_id = new String[result.length()];
-                    filter_jalan = new String[result.length()];
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        filter_rumah_pompa[i] = re.getString("nama_");
-                        filter_id[i] = re.getString("id_rumah_pompa");
-                        filter_jalan[i] = re.getString("jalan");
-                        alert = re.getString("alert");
-
-                        if (!filter_id[i].equals("0")){
-                            RumahPompa rumahpompa = new RumahPompa();
-                            rumahpompa.setNama(filter_rumah_pompa[i]);
-                            rumahpompa.setAlamat(filter_jalan[i]);
-                            temp.add(rumahpompa);
-                        }
-
-                    }
-                    if (alert.equals("t")){
-                        listbanjir = temp;
-                        Collections.sort(listbanjir, new Comparator<RumahPompa>() {
-                            @Override
-                            public int compare(RumahPompa a1, RumahPompa a2) {
-                                return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
-                            }
-                        });
-                        lv.setAdapter(new RumahPompaAdapter(getActivity(), listbanjir));
-                    }else {
-                        listaman = temp;
-                        Collections.sort(listaman, new Comparator<RumahPompa>() {
-                            @Override
-                            public int compare(RumahPompa a1, RumahPompa a2) {
-                                return (a1.nama.toString()).compareToIgnoreCase(a2.nama.toString());
-                            }
-                        });
-                        lv.setAdapter(new RumahPompaAdapter(getActivity(), listaman));
-                    }
-                } catch (JSONException e) {
-                    //JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getActivity().getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "GetData Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("status", status);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     @Override
     public boolean onQueryTextSubmit(String query) {

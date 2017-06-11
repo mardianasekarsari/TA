@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -81,7 +82,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private TextView tv_register;
     private Button btn_signin;
     LoginSQLiteHandler db;
-    String apikey;
+    String apikey, role;
+    Boolean isTokenEqual;
 
     Volley mVolleyService;
     Context mContext;
@@ -122,7 +124,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        tv_register = ((TextView) findViewById(R.id.tv_register));
+        /*tv_register = ((TextView) findViewById(R.id.tv_register));
         tv_register.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,7 +133,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 startActivity(register);
                 overridePendingTransition(R.anim.slide_in_up, R.anim.slide_out_up);
             }
-        });
+        });*/
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
@@ -140,25 +142,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         HashMap<String, String> user = session.getUser();
 
-        String role = user.get(SessionManager.KEY_ROLE);
+        role = user.get(SessionManager.KEY_ROLE);
         String username = user.get(SessionManager.KEY_USERNAME);
         String password = user.get(SessionManager.KEY_PASSWORD);
 
         if (session.isLoggedIn()) {
             getApiKey(password+username, password, username);
             // User is already logged in. Take him to main activity
-            Intent intent = null;
-            if (role.equals(AppConfig.ADMIN)){
-                intent = new Intent(getBaseContext(), AdminHomeActivity.class);
-            }else if(role.equals(AppConfig.PETUGAS)){
-                intent = new Intent(getBaseContext(), PetugasHomeActivity.class);
-            }else if (role.equals(AppConfig.PENGAWAS)){
-                intent = new Intent(getBaseContext(), PengawasHomeActivity.class);
-            }
-
-            startActivity(intent);
-
-            finish();
+            getuserbyUsername(username);
+            //Log.e("Cek", String.valueOf(isLogout));
         }
     }
 
@@ -366,7 +358,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -382,6 +374,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -394,7 +387,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     String status = response.getString("status");
 
@@ -417,6 +410,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -510,6 +504,57 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
+    }
+
+    private void getuserbyUsername(final String username) {
+
+        String url = AppConfig.URL_USER + username;
+        mVolleyService.getBy(url, apikey, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+                Log.e("Cek", message);
+            }
+
+            @Override
+            public ArrayList<String> onResponse(JSONObject response) {
+                try {
+                    boolean status = response.getBoolean("status");
+
+                    if (status) {
+                        SharedPreferences token = getSharedPreferences(AppConfig.PREF_FIREBASE, MODE_PRIVATE);
+                        String regId = token.getString("regId", "");
+
+                        JSONObject result = response.getJSONObject("result");
+
+                        String tokendb = result.getString("token");
+                        Intent intent = null;
+
+                        if (!tokendb.equals(regId)){
+                            session.logoutUser();
+                        }else {
+                            if (role.equals(AppConfig.ADMIN)){
+                                intent = new Intent(getBaseContext(), AdminHomeActivity.class);
+                            }else if(role.equals(AppConfig.PETUGAS)){
+                                intent = new Intent(getBaseContext(), PetugasHomeActivity.class);
+                            }else if (role.equals(AppConfig.PENGAWAS)){
+                                intent = new Intent(getBaseContext(), PengawasHomeActivity.class);
+                            }
+                            startActivity(intent);
+
+                            finish();
+                        }
+
+                    }else {
+                        Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
     }
 
 }

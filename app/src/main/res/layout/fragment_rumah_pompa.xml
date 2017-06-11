@@ -38,7 +38,7 @@
             android:id="@+id/mapView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="6" />
+            android:layout_weight="8" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -50,7 +50,6 @@
                 android:id="@+id/tv_tgl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/register"
                 android:gravity="center"/>
         </LinearLayout>
     </LinearLayout>
@@ -105,15 +104,14 @@
                 </LinearLayout>
                 <android.support.v7.widget.CardView
                     android:id="@+id/card_view1"
+                    android:layout_below="@+id/ll1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_margin="8dp"
-                    android:layout_below="@+id/ll1"
                     card_view:cardCornerRadius="2dp"
                     card_view:contentPadding="10dp">
                     <LinearLayout
-                        android:id="@+id/ll2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingTop="8dp"
@@ -123,13 +121,13 @@
                         android:showDividers="middle">
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="72dp"
+                            android:layout_height="60dp"
                             android:orientation="horizontal"
                             android:gravity="center">
                             <ImageView
                                 android:layout_width="72dp"
                                 android:layout_height="match_parent"
-                                android:padding="8dp"
+                                android:padding="16dp"
                                 android:src="@drawable/ic_status"
                                 android:tint="@color/colorPrimaryDark"/>
                             <LinearLayout
@@ -154,13 +152,73 @@
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="72dp"
+                            android:layout_height="60dp"
                             android:orientation="horizontal"
                             android:gravity="center">
                             <ImageView
                                 android:layout_width="72dp"
                                 android:layout_height="match_parent"
-                                android:padding="8dp"
+                                android:padding="16dp"
+                                android:src="@drawable/ic_pompastatus"
+                                android:tint="@color/colorPrimaryDark"/>
+                            <LinearLayout
+                                android:layout_width="0dip"
+                                android:layout_weight="3"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/tv_petugas_pompa"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:paddingRight="16dp"
+                                    android:paddingBottom="4dp"
+                                    android:textColor="@android:color/black"
+                                    android:textSize="16sp"/>
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="3"
+                                    android:paddingRight="16dp"
+                                    android:text="@string/pompa"
+                                    android:textSize="14sp"
+                                    android:gravity="center_vertical"/>
+
+                            </LinearLayout>
+                            <android.support.v7.widget.SwitchCompat
+                                android:id="@+id/switch_pompa_status"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </android.support.v7.widget.CardView>
+                <android.support.v7.widget.CardView
+                    android:id="@+id/card_view2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="8dp"
+                    android:layout_below="@+id/card_view1"
+                    card_view:cardCornerRadius="2dp"
+                    card_view:contentPadding="10dp">
+                    <LinearLayout
+                        android:id="@+id/ll2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:orientation="vertical"
+                        android:divider="@drawable/divider_profile"
+                        android:showDividers="middle">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="60dp"
+                            android:orientation="horizontal"
+                            android:gravity="center">
+                            <ImageView
+                                android:layout_width="72dp"
+                                android:layout_height="match_parent"
+                                android:padding="16dp"
                                 android:src="@drawable/ic_water"
                                 android:tint="@color/colorPrimaryDark"/>
                             <LinearLayout
@@ -185,13 +243,13 @@
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="72dp"
+                            android:layout_height="60dp"
                             android:orientation="horizontal"
                             android:gravity="center">
                             <ImageView
                                 android:layout_width="72dp"
                                 android:layout_height="match_parent"
-                                android:padding="8dp"
+                                android:padding="16dp"
                                 android:src="@drawable/ic_threshold"
                                 android:tint="@color/colorPrimaryDark"/>
                             <LinearLayout
@@ -230,13 +288,13 @@
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="72dp"
+                            android:layout_height="60dp"
                             android:orientation="horizontal"
                             android:gravity="center">
                             <ImageView
                                 android:layout_width="72dp"
                                 android:layout_height="match_parent"
-                                android:padding="8dp"
+                                android:padding="16dp"
                                 android:src="@drawable/ic_kedalamansaluran"
                                 android:tint="@color/colorPrimaryDark"/>
                             <LinearLayout
@@ -261,13 +319,13 @@
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="72dp"
+                            android:layout_height="60dp"
                             android:orientation="horizontal"
                             android:gravity="center">
                             <ImageView
                                 android:layout_width="72dp"
                                 android:layout_height="match_parent"
-                                android:padding="8dp"
+                                android:padding="16dp"
                                 android:src="@drawable/ic_weather"
                                 android:tint="@color/colorPrimaryDark"/>
                             <LinearLayout
@@ -293,13 +351,13 @@
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="72dp"
+                            android:layout_height="60dp"
                             android:orientation="horizontal"
                             android:gravity="center">
                             <ImageView
                                 android:layout_width="72dp"
                                 android:layout_height="match_parent"
-                                android:padding="8dp"
+                                android:padding="16dp"
                                 android:src="@drawable/ic_weather"
                                 android:tint="@color/colorPrimaryDark"/>
                             <LinearLayout

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -16,9 +15,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,43 +24,36 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.R.attr.data;
 import static android.content.Context.MODE_PRIVATE;
 
 
@@ -109,7 +100,8 @@ public class RumahPompaFragment extends Fragment{
     private LoginSQLiteHandler db;
 
     private TextView tv_rumahpompa_nama, tv_rumahpompa_alamat, tv_rumahpompa_nohp, tv_rumahpompa_threshold,
-            tv_rumahpompa_tinggiair, tv_rumahpompa_cuaca, tv_rumahpompa_pop, tv_rumahpompa_status, tv_rumahpompa_kedalamaninlet;
+            tv_rumahpompa_tinggiair, tv_rumahpompa_cuaca, tv_rumahpompa_pop, tv_rumahpompa_status, tv_rumahpompa_kedalamaninlet, tv_tgl,
+            tv_pompa;
     private FloatingActionButton btn_edit;
     private ImageButton btn_edit_threshold;
     private CoordinatorLayout cl_rumahpompa;
@@ -120,6 +112,8 @@ public class RumahPompaFragment extends Fragment{
     final List<String> list_rumahpompa = new ArrayList<String>();
     LatLngBounds.Builder builder;
     CameraUpdate cu;
+    String idrumahpompa, role;
+    SwitchCompat switch_pompa;
 
     Volley mVolleyService;
     Context mContext;
@@ -184,18 +178,30 @@ public class RumahPompaFragment extends Fragment{
         tv_rumahpompa_pop = ((TextView) view.findViewById(R.id.tv_petugas_pop));
         tv_rumahpompa_status = ((TextView) view.findViewById(R.id.tv_petugas_status));
         tv_rumahpompa_kedalamaninlet = ((TextView) view.findViewById(R.id.tv_petugas_kedalamansaluran));
+        tv_pompa = ((TextView) view.findViewById(R.id.tv_petugas_pompa));
+        tv_tgl = ((TextView) view.findViewById(R.id.tv_tgl));
         cl_rumahpompa = ((CoordinatorLayout) view.findViewById(R.id.rumahpompa));
         ac_rumahpompa = ((AutoCompleteTextView) view.findViewById(R.id.ac_rumahpompa));
+        switch_pompa = ((SwitchCompat) view.findViewById(R.id.switch_pompa_status));
 
+        switch_pompa.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    editStatusPompa("true");
+                    tv_pompa.setText("Menyala");
+                }else {
+                    editStatusPompa("false");
+                    tv_pompa.setText("Mati");
+                }
+            }
+        });
 
-       /* HashMap<String, String> user = db.getUserDetails();
+        Date now = new Date();
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE, dd MMMM yyyy", new java.util.Locale("id")); // the day of the week spelled out completely
+        String day = simpleDateformat.format(now);
 
-        String username = user.get("username");
-        String nama = user.get("nama");
-        String nohp = user.get("telepon_user");
-        String alamat = user.get("alamat_user");
-        String role = user.get("role_user");
-        String idrumahpompa = user.get("rumahpompa");*/
+        tv_tgl.setText(day);
 
         HashMap<String, String> user = session.getUser();
 
@@ -203,11 +209,12 @@ public class RumahPompaFragment extends Fragment{
         String nama = user.get(SessionManager.KEY_NAME);
         String nohp = user.get(SessionManager.KEY_PHONE);
         String alamat = user.get(SessionManager.KEY_ADDRESS);
-        String idrumahpompa = user.get(SessionManager.KEY_RUMAHPOMPAID);
-        String role = user.get(SessionManager.KEY_ROLE);
+        idrumahpompa = user.get(SessionManager.KEY_RUMAHPOMPAID);
+        role = user.get(SessionManager.KEY_ROLE);
 
         if (role.equals("PENGAWAS")){
             cl_rumahpompa.setVisibility(View.GONE);
+            switch_pompa.setVisibility(View.GONE);
             mMapView = (MapView) view.findViewById(R.id.mapView);
             mMapView.onCreate(savedInstanceState);
 
@@ -260,7 +267,6 @@ public class RumahPompaFragment extends Fragment{
             }
         });
 
-
         //getCuaca();
         /*btn_edit = ((FloatingActionButton) view.findViewById(R.id.fab_rumahpompa_edit));
         btn_edit.setOnClickListener(new View.OnClickListener() {
@@ -298,6 +304,8 @@ public class RumahPompaFragment extends Fragment{
         mListener = null;
     }
 
+
+
     private void getrumahpompabyId(final String id) {
         String url = AppConfig.URL_RUMAHPOMPA + id;
         mVolleyService.getBy(url, apikey, new VolleyResponseListener() {
@@ -307,7 +315,7 @@ public class RumahPompaFragment extends Fragment{
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -319,6 +327,7 @@ public class RumahPompaFragment extends Fragment{
                         threshold = result.getString("threshold_tinggi_air");
                         kedalamaninlet = result.getString("ketinggian_sungai");
                         String statusalert = result.getString("alert");
+                        String statuspompa = result.getString("status_pompa");
 
                         tv_rumahpompa_nama.setText(nama);
                         tv_rumahpompa_alamat.setText(alamat);
@@ -332,6 +341,15 @@ public class RumahPompaFragment extends Fragment{
                         else {
                             tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
                         }
+
+                        if (statuspompa.equals("t")){
+                            switch_pompa.setChecked(true);
+                            tv_pompa.setText("Menyala");
+                        }
+                        else {
+                            switch_pompa.setChecked(false);
+                            tv_pompa.setText("Mati");
+                        }
                     }else {
                         Toast.makeText(mContext, getString(R.string.invalid_token), Toast.LENGTH_SHORT).show();
                     }
@@ -339,76 +357,10 @@ public class RumahPompaFragment extends Fragment{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getrumahpompabyId(final String id) {
-        String tag_string_req = "req_rumahpompa";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETRUMAHPOMPABYID, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                //Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-
-
-                    nama = result.getString("nama_");
-                    alamat = result.getString("jalan");
-                    nohp = result.getString("no_telp_rumah_pompa");
-                    threshold = result.getString("threshold_tinggi_air");
-                    String status = result.getString("alert");
-
-                    tv_rumahpompa_nama.setText(nama);
-                    tv_rumahpompa_alamat.setText(alamat);
-                    tv_rumahpompa_nohp.setText(nohp);
-                    tv_rumahpompa_threshold.setText(threshold);
-
-                    if (status.equals("t")){
-                        tv_rumahpompa_status.setText("Berpotensi Banjir");
-                    }
-                    else {
-                        tv_rumahpompa_status.setText("Tidak Berpotensi Banjir");
-                    }
-                    //Toast.makeText(getActivity().getApplicationContext(), rumahpompa, Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getActivity().getApplicationContext(), "Json3 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private void getData(final String id){
         String url = AppConfig.URL_DATA+ id;
@@ -419,7 +371,7 @@ public class RumahPompaFragment extends Fragment{
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -445,76 +397,10 @@ public class RumahPompaFragment extends Fragment{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getData(final String id){
-        String tag_string_req = "req_getdata";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETDATA, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-
-                    if(jObj.isNull("result")){
-                        Toast.makeText(getActivity().getApplicationContext(), "Data: " + jObj, Toast.LENGTH_SHORT).show();
-                    }
-                    JSONObject data = jObj.getJSONObject("result");
-
-                    if (!data.isNull("waktu")){
-                        String cuaca = data.getString("cuaca");
-                        String pop = data.getString("chanceofrain");
-                        String waktu = data.getString("waktu");
-                        String ketinggianair = data.getString("ketinggian_air");
-
-                        tv_rumahpompa_cuaca.setText(cuaca);
-                        tv_rumahpompa_tinggiair.setText(ketinggianair);
-                        tv_rumahpompa_pop.setText(pop);
-                    }
-                    else {
-                        Toast.makeText(getActivity().getApplicationContext(), AppConfig.NODATA , Toast.LENGTH_SHORT).show();
-                    }
-                    //Toast.makeText(getContext(), data.length(), Toast.LENGTH_SHORT).show();
-
-
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }){
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id", id);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private void getAllRumahPompa(){
         mVolleyService.getAll(AppConfig.URL_RUMAHPOMPA, apikey, new VolleyResponseListener() {
@@ -524,7 +410,7 @@ public class RumahPompaFragment extends Fragment{
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -707,221 +593,10 @@ public class RumahPompaFragment extends Fragment{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getAllRumahPompa(){
-        String tag_string_req = "req_getallrumahpompa";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETRUMAHPOMPA, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    final JSONArray result = jObj.getJSONArray("result");
-
-                    rumah_pompa = new String[result.length()];
-                    id = new String[result.length()];
-
-                    final HashMap<Marker, String> markerMap = new HashMap<Marker, String>();
-                    final HashMap<String, Marker> markerName = new HashMap<String, Marker>();
-
-                    for (int i=1; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        rumah_pompa[i] = re.getString("nama_");
-                        id[i] = re.getString("id_rumah_pompa");
-                        String latitude = re.getString("latitude");
-                        String longitude = re.getString("longitude");
-                        String alert = re.getString("alert");
-
-                        //Add to list autocomplete
-                        list_rumahpompa.add(rumah_pompa[i]);
-                        //Collections.sort(list_rumahpompa);
-
-                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
-                                R.layout.item_search, list_rumahpompa);
-                        //dataAdapter.setDropDownViewResource(layoutItemId);
-                        ac_rumahpompa.setThreshold(1);
-
-                        dataAdapter.sort(new Comparator<String>() {
-                            @Override
-                            public int compare(String lhs, String rhs) {
-                                return lhs.compareTo(rhs);
-                            }
-                        });
-
-                        ac_rumahpompa.setAdapter(dataAdapter);
-
-                        *//*Map<String, String> lala = last_data.get(i);
-                        String data_cuaca = lala.get("cuaca");*//*
-                        data_cuaca = last_data_cuaca.get(i);
-                        data_tinggiair = last_data_tinggiair.get(i);
-                        data_pop = last_data_pop.get(i);
-
-                        Drawable sourceDrawable = getResources().getDrawable(R.drawable.ic_marker);
-                        Bitmap sourceBitmap = convertDrawableToBitmap(sourceDrawable);
-
-                        Marker rumahpompa = null;
-                        if (alert.equals("t")){
-                            mColorCode = Color.parseColor("#ff0000");
-                            mFinalBitmap = changeImageColor(sourceBitmap, mColorCode);
-                            int newWidth = (int) (mFinalBitmap.getWidth() * 1.5);
-                            int newHeight = (int) (mFinalBitmap.getHeight() * 1.5);
-                            Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, newWidth, newHeight, true);
-                            //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, 150, 150, false);
-                            rumahpompa = mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)))
-                                    .title(rumah_pompa[i])
-                                    .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-                                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                        }
-                        else if (alert.equals("f")){
-                            mColorCode = Color.parseColor("#32CD32");
-                            mFinalBitmap = changeImageColor(sourceBitmap, mColorCode);
-                            int newWidth = (int) (mFinalBitmap.getWidth() * 1.5);
-                            int newHeight = (int) (mFinalBitmap.getHeight() * 1.5);
-                            Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, newWidth, newHeight, true);
-                            //Bitmap resizedBitmap = Bitmap.createScaledBitmap(mFinalBitmap, 150, 150, false);
-                            rumahpompa = mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.valueOf(latitude), Double.valueOf(longitude)))
-                                    .title(rumah_pompa[i])
-                                    .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap)));
-                                    //.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-                        }
-
-                        markerMap.put(rumahpompa, id[i]);
-                        markerName.put(rumah_pompa[i], rumahpompa);
-                        markersList.add(rumahpompa);
-
-                        ac_rumahpompa.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,long arg3) {
-                                // TODO Auto-generated method stub
-                                String nama_rumahpompa = arg0.getItemAtPosition(arg2).toString();
-                                getRumahPompabyName(nama_rumahpompa);
-
-                                Marker mark = markerName.get(nama_rumahpompa);
-                                mark.showInfoWindow();
-                            }
-                        });
-                    }
-
-                    *//*create for loop for get the latLngbuilder from the marker list*//*
-                    builder = new LatLngBounds.Builder();
-                    for (Marker m : markersList) {
-                        builder.include(m.getPosition());
-                    }
-                    *//*initialize the padding for map boundary*//*
-                    int padding = 50;
-                    *//*create the bounds from latlngBuilder to set into map camera*//*
-                    final LatLngBounds bounds = builder.build();
-                    *//*create the camera with bounds and padding to set into map*//*
-                    cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                    *//*call the map call back to know map is loaded or not*//*
-                    mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-                        @Override
-                        public void onMapLoaded() {
-                            *//*set animated zoom camera into map*//*
-                            mMap.animateCamera(cu);
-
-                        }
-                    });
-
-                    // Setting a custom info window adapter for the google map
-                    mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-
-                        // Use default InfoWindow frame
-                        @Override
-                        public View getInfoWindow(Marker arg0) {
-                            return null;
-                        }
-
-                        // Defines the contents of the InfoWindow
-                        @Override
-                        public View getInfoContents(Marker marker) {
-
-                            String id = markerMap.get(marker);
-
-                            // Getting view from the layout file info_window_layout
-                            View v = getActivity().getLayoutInflater().inflate(R.layout.infowindow, null);
-
-                            // Set desired height and width
-                            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(600, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            layoutParams.setMargins(32, 32, 32, 32);
-                            v.setLayoutParams(layoutParams);
-
-                            //v.setLayoutParams(new RelativeLayout.LayoutParams(600, RelativeLayout.LayoutParams.WRAP_CONTENT));
-
-                            TextView tv_infowindow_title = (TextView) v.findViewById(R.id.tv_infowindow_title);
-                            TextView tv_infowindow_cuaca = (TextView) v.findViewById(R.id.tv_infowindow_cuaca);
-                            TextView tv_infowindow_tinggiair = (TextView) v.findViewById(R.id.tv_infowindow_tinggiair);
-                            TextView tv_infowindow_pop = (TextView) v.findViewById(R.id.tv_infowindow_pop);
-
-                            tv_infowindow_title.setText(rumah_pompa[Integer.valueOf(id)]);
-                            tv_infowindow_cuaca.setText((last_data_cuaca.get(Integer.valueOf(id))));
-                            tv_infowindow_tinggiair.setText((last_data_tinggiair.get(Integer.valueOf(id))));
-                            tv_infowindow_pop.setText((last_data_pop.get(Integer.valueOf(id))));
-
-                            // Returning the view containing InfoWindow contents
-                            return v;
-
-                        }
-                    });
-
-                    mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                        @Override
-                        public void onInfoWindowClick(Marker marker) {
-                            String id = markerMap.get(marker);
-
-                            Intent intent = new Intent(getContext(),RumahPompaActivity.class);
-                            intent.putExtra("id", id);
-                            startActivity(intent);
-                        }
-                    });
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        });
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
-
-   /* public void onGoToPos(View view){
-        changeCamera(CameraUpdateFactory.newCameraPosition(pos), new GoogleMap.CancelableCallback() {
-            @Override
-            public void onFinish() {
-                Toast.makeText(getActivity().getApplicationContext(), "Berhasil", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-        });
-    }
-
-    private void changeCamera(CameraUpdate update, GoogleMap.CancelableCallback callback){
-        mMap.moveCamera(update);
-    }*/
 
     public  void getLastData(){
         mVolleyService.getAll(AppConfig.URL_DATA, apikey, new VolleyResponseListener() {
@@ -931,7 +606,7 @@ public class RumahPompaFragment extends Fragment{
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -958,61 +633,34 @@ public class RumahPompaFragment extends Fragment{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
 
-    /*private void getLastData(){
-        String tag_string_req = "req_getlastdata";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETLASTDATA, new Response.Listener<String>() {
-
+    private void editStatusPompa (final String status){
+        mVolleyService.editStatusPompa(idrumahpompa, status, apikey, new VolleyResponseListener() {
             @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
+                    Boolean status = response.getBoolean("status");
+                    if (status){
 
-                    JSONArray jArr = new JSONArray(response);
-
-                    for (int i=0; i<jArr.length(); i++){
-                        JSONObject re = jArr.getJSONObject(i);
-                        int key = i;
-
-                        if (re.isNull("id_data")){
-                            last_data_cuaca.put(key, "-");
-                            last_data_tinggiair.put(key, "-");
-                            last_data_pop.put(key, "-");
-                        }
-                        else {
-                            last_data_cuaca.put(key, re.getString("cuaca"));
-                            last_data_tinggiair.put(key, re.getString("ketinggian_air"));
-                            last_data_pop.put(key, re.getString("chanceofrain"));
-                        }
-
+                    }else{
                     }
-
                 } catch (JSONException e) {
-                    // JSON error
-                    //e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
                 }
+
+                return null;
             }
-        }, new Response.ErrorListener() {
 
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "GetData Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
+            public void onError(String message) {
+
             }
         });
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
+    }
 
     private void getRumahPompabyName(final String name) {
         String url = AppConfig.URL_RUMAHPOMPA + name + "/name" ;
@@ -1023,7 +671,7 @@ public class RumahPompaFragment extends Fragment{
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -1043,63 +691,10 @@ public class RumahPompaFragment extends Fragment{
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getRumahPompabyName(final String name){
-        String tag_string_req = "req_getrumahpompabyname";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETRUMAHPOMPABYNAME, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //
-                //showProgress(false);
-                try {
-                    //
-                    JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-                    String latitude = result.getString("latitude");
-                    String longitude = result.getString("longitude");
-
-                    //Toast.makeText(getActivity().getApplicationContext(), latitude + " " + longitude, Toast.LENGTH_SHORT).show();
-                    LatLng latlng = new LatLng(Double.valueOf(latitude), Double.valueOf(longitude));
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latlng, 15);
-                    mMap.animateCamera(cameraUpdate);
-                    //mMap.moveCamera(cameraUpdate);
-                } catch (JSONException e) {
-                    //JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getActivity().getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "GetData Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }){
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("rumah_pompa", name);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     public static Bitmap changeImageColor(Bitmap sourceBitmap, int color) {
         Bitmap resultBitmap = Bitmap.createBitmap(sourceBitmap, 0, 0,

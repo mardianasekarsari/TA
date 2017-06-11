@@ -5,34 +5,21 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 public class UserDetailActivity extends AppCompatActivity {
     private TextView tv_username, tv_name, tv_phonenumber, tv_address, tv_rumahpompa, tv_role;
@@ -81,7 +68,7 @@ public class UserDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -115,6 +102,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -128,7 +116,7 @@ public class UserDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -145,6 +133,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -158,7 +147,7 @@ public class UserDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -175,57 +164,10 @@ public class UserDetailActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-   /* private void getRoleUser(final String username, final ServerCallback callback) {
-        String tag_string_req = "req_getrolebyusername";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETROLEBYUSERNAME, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    //JSONObject result = jObj.getJSONObject("result");
-                    String role = jObj.getString("nama_role");
-                    callback.onSuccess(role);
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -269,12 +211,12 @@ public class UserDetailActivity extends AppCompatActivity {
         builder.setTitle("Hapus Data");
         builder.setCancelable(true);
         builder.setMessage("Apakah Anda Yakin Untuk Menghapus Data?");
-        builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("IYA", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int ids) {
                 delete(username);
             }
         });
-        builder.setNegativeButton("NO", null);
+        builder.setNegativeButton("TIDAK", null);
         builder.show();
     }
 
@@ -287,7 +229,7 @@ public class UserDetailActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -305,6 +247,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }

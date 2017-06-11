@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/alamat"
-                android:drawableLeft="@drawable/ic_place"
+                android:drawableLeft="@drawable/ic_action_name"
                 android:drawablePadding="8dp"
                 android:inputType="text"
                 android:maxLines="1"
@@ -67,41 +67,60 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/til_rumahpompa_latitude"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_rumahpompa_latitude"
+                android:layout_width="0dip"
+                android:layout_weight="2"
+                android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/edt_rumahpompa_latitude"
-                android:layout_width="match_parent"
+                <EditText
+                    android:id="@+id/edt_rumahpompa_latitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/latitude"
+                    android:drawableLeft="@drawable/ic_latitude"
+                    android:drawablePadding="8dp"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/til_rumahpompa_longitude"
+                android:layout_width="0dip"
+                android:layout_weight="2"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/edt_rumahpompa_longitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/longitude"
+                    android:drawableLeft="@drawable/ic_longitude"
+                    android:drawablePadding="8dp"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:maxLines="1"
+                    android:singleLine="true" />
+
+            </android.support.design.widget.TextInputLayout>
+            <Button
+                android:id="@+id/btn_launchmap"
+                android:layout_width="0dip"
+                android:layout_weight="1"
+                android:text="Peta"
+                android:textColor="@color/white"
+                android:background="@color/colorPrimaryDark2"
                 android:layout_height="wrap_content"
-                android:hint="@string/latitude"
-                android:drawableLeft="@drawable/ic_latitude"
-                android:drawablePadding="8dp"
-                android:inputType="numberDecimal|numberSigned"
-                android:maxLines="1"
-                android:singleLine="true" />
+                />
+        </LinearLayout>
 
-        </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/til_rumahpompa_longitude"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <EditText
-                android:id="@+id/edt_rumahpompa_longitude"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/longitude"
-                android:drawableLeft="@drawable/ic_longitude"
-                android:drawablePadding="8dp"
-                android:inputType="numberDecimal|numberSigned"
-                android:maxLines="1"
-                android:singleLine="true" />
-
-        </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/til_rumahpompa_threshold"
@@ -145,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/edit"
+            android:text="@string/submit"
             android:textStyle="bold"
             android:textColor="@color/white"
             android:background="@color/colorPrimaryDark2"/>

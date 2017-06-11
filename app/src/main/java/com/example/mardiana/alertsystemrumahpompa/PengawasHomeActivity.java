@@ -75,6 +75,7 @@ public class PengawasHomeActivity extends AppCompatActivity
         adapter.addFragment(new ProfilFragment(), "Profil");
         adapter.addFragment(new RumahPompaFragment(), "Rumah Pompa (Maps)");
         adapter.addFragment(new RumahPompaListFragment(), "Rumah Pompa (List)");
+        adapter.addFragment(new ReportFragment(), "Laporan");
         viewPager.setAdapter(adapter);
     }
 

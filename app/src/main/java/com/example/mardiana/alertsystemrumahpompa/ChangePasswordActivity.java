@@ -2,7 +2,6 @@ package com.example.mardiana.alertsystemrumahpompa;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
@@ -10,23 +9,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,7 +131,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -169,73 +161,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void changePassword(final String username, final String oldpassword, final String newpassword) {
-        String tag_string_req = "req_changepassword";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_CHANGEPASSWORD, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                //Toast.makeText(LoginActivity.this, response, Toast.LENGTH_SHORT).show();
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    boolean status = jObj.getBoolean("status");
-
-                    if (status) {
-                        String msg = jObj.getString("msg");
-                        if (oldpassword.equals(newpassword)){
-                            showErrorDialog("Masukkan Password Baru yang Berbeda dengan Password Lama");
-                        }
-                        else {
-                            Toast.makeText(ChangePasswordActivity.this, AppConfig.EDIT_SUCCESS, Toast.LENGTH_SHORT).show();
-                        }
-                        //session.editSession(username, nama, role, alamat, nohp, idrumahpompa, password);
-                    } else {
-                        String kode = jObj.getString("kode");
-                        if (kode.equals("2")){
-                            showErrorDialog("Password Lama Salah");
-                        }
-                        else {
-                            Toast.makeText(ChangePasswordActivity.this, AppConfig.EDIT_FAILED, Toast.LENGTH_SHORT).show();
-                        }
-                        //Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -9,23 +9,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -131,16 +122,6 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
             }
         });
 
-        //getAllUserRumahPompa();
-        /*getAllUserRumahPompa(new ServerCallback() {
-            @Override
-            public void onSuccess(Map<String, String> list) {
-                // call web service get all user
-                getAllUser(list);
-
-            }
-        });*/
-
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -159,7 +140,6 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
     }
 
     public  void getAllUser(final Map<String, String> lists){
-
         mVolleyService.getAll(AppConfig.URL_USER, apikey, new VolleyResponseListener() {
 
             @Override
@@ -168,7 +148,7 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     //Toast.makeText(mContext, String.valueOf(status), Toast.LENGTH_SHORT).show();
@@ -202,6 +182,7 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -214,7 +195,7 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
 
                     boolean status = response.getBoolean("status");
@@ -237,54 +218,10 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-   /* private void getAllUserRumahPompa(final ServerCallback callback){
-        String tag_string_req = "req_getalluserrumahpompa";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETUSERRUMAHPOMPA, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
-                try {
-                    //JSONObject jObj = new JSONObject(response);
-                    JSONArray result = new JSONArray(response);
-
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        String username = re.getString("username");
-                        String nama_rumahpompa = re.getString("rumahpompa");
-                        user_rumahpompa.put(username, nama_rumahpompa);
-
-                    }
-                    callback.onSuccess(user_rumahpompa);
-                    //Toast.makeText(getActivity().getApplicationContext(), rumah_pompa[0], Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getActivity().getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        });
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -360,11 +297,6 @@ public class DataUserFragment extends Fragment implements android.widget.SearchV
         }
         return true;
     }
-
-    /*private void updateList(ArrayList<User> mList) {
-        this.userlist.clear();
-        this.userlist.addAll(mList);
-    }*/
 
     @Override
     public void onResume() {

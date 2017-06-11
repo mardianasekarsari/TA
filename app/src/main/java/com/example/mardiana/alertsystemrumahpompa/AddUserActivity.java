@@ -10,25 +10,16 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
@@ -40,10 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -120,7 +107,7 @@ public class AddUserActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onResponse(JSONObject response) {
+                public ArrayList<String> onResponse(JSONObject response) {
                     try {
                         boolean status = response.getBoolean("status");
 
@@ -151,6 +138,7 @@ public class AddUserActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    return null;
                 }
             });
 
@@ -185,7 +173,7 @@ public class AddUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     Boolean status = response.getBoolean("status");
                     if (status){
@@ -212,59 +200,10 @@ public class AddUserActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-
-    /*private void getAllRumahPompa(){
-        String tag_string_req = "req_getallrumahpompa";
-        showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETRUMAHPOMPA, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONArray result = jObj.getJSONArray("result");
-
-                    rumah_pompa = new String[result.length()];
-                    id = new String[result.length()];
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        rumah_pompa[i] = re.getString("nama_");
-                        id[i] = re.getString("id_rumah_pompa");
-                    }
-
-                    ArrayAdapter<String> arrayAdapter_rumahPompa = new ArrayAdapter<String>(AddUserActivity.this, android.R.layout.simple_dropdown_item_1line, rumah_pompa);
-                    rumahpompa_spinner = ((MaterialBetterSpinner) findViewById(R.id.spin_rumah_pompa));
-                    rumahpompa_spinner.setAdapter(arrayAdapter_rumahPompa);
-                    if (!selected_rumahpompa.equals("")){
-                        rumahpompa_spinner.setText(selected_rumahpompa);
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                showProgress(false);
-            }
-        });
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private void getAllRole(){
         mVolleyService.getAll(AppConfig.URL_ROLE, apikey, new VolleyResponseListener() {
@@ -274,7 +213,7 @@ public class AddUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     if (status){
@@ -305,62 +244,10 @@ public class AddUserActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getAllRole(){
-        String tag_string_req = "req_getallrole";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.GET,
-                AppConfig.URL_GETROLE, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONArray result = jObj.getJSONArray("result");
-
-                    temp = new String[result.length()];
-                    role_list = new String[result.length()];
-                    role = new String[result.length()];
-                    //id = new String[result.length()];
-                    for (int i=0; i<result.length(); i++){
-                        JSONObject re = result.getJSONObject(i);
-                        role[i] = re.getString("nama_role");
-                        temp[i] = role[i].toLowerCase();
-                        role_list[i] = temp[i].substring(0, 1).toUpperCase() + temp[i].substring(1);
-                        //id[i] = re.getString("id_role");
-                    }
-
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(AddUserActivity.this, android.R.layout.simple_dropdown_item_1line, role_list);
-                    role_spinner = ((MaterialBetterSpinner) findViewById(R.id.spin_role_spinner));
-                    role_spinner.setAdapter(arrayAdapter);
-                    if (!selected_role.equals("")){
-                        role_spinner.setText(selected_role);
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        });
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private void getUserRumahPompa(final String username, final String apikey){
         mVolleyService.getUserRumahPompa(username, apikey, new VolleyResponseListener() {
@@ -370,7 +257,7 @@ public class AddUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
                     if (status){
@@ -384,59 +271,10 @@ public class AddUserActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getUserRumahPompa(final String username, final String apikey){
-        String tag_string_req = "req_getuserrumahpompa";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETUSERRUMAHPOMPA, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    JSONObject result = jObj.getJSONObject("result");
-                    selected_rumahpompa = result.getString("nama_");
-                    getAllRumahPompa();
-                    //Toast.makeText(getActivity().getApplicationContext(), rumah_pompa[0], Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }){
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
-
 
     private void attemptRegister() {
         edt_regusername.setError(null);
@@ -569,7 +407,7 @@ public class AddUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -594,6 +432,7 @@ public class AddUserActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
@@ -606,7 +445,7 @@ public class AddUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -629,150 +468,10 @@ public class AddUserActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void register(final String username, final String rumah_pompa, final String name, final String role, final String address, final String phone, final String password) {
-        String tag_string_req = "req_register";
-        //showProgress(true);
-
-        //Toast.makeText(this, "username: " + username + " rumah_pompa: " + rumah_pompa + " name: " + name + " role: " + role + " address: " + address + " phone: " + phone + " password: " + password, Toast.LENGTH_SHORT).show();
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_REGISTER, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                //Toast.makeText(AddUserActivity.this, "username: " + username + " rumah_pompa: " + rumah_pompa + " name: " + name + " role: " + role + " address: " + address + " phone: " + phone + " password: " + password, Toast.LENGTH_SHORT).show();
-                //Toast.makeText(AddUserActivity.this, response, Toast.LENGTH_SHORT).show();
-                //Toast.makeText(AddUserActivity.this, "role: ", Toast.LENGTH_SHORT).show();
-                try {
-
-                    JSONObject jObj = new JSONObject(response);
-                    boolean status = jObj.getBoolean("status");
-
-                    if (status) {
-                        String msg = jObj.getString("msg");
-                        Toast.makeText(AddUserActivity.this, AppConfig.STORE_SUCCESS, Toast.LENGTH_SHORT).show();
-                        *//*Intent intent_profil = new Intent(getBaseContext(), AdminHomeActivity.class);
-                        intent_profil.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent_profil);*//*
-
-                        finish();
-
-                    } else {
-                        // Error in login. Get the error message
-                        String errorMsg = jObj.getString("msg");
-                        Toast.makeText(AddUserActivity.this, AppConfig.STORE_FAILED, Toast.LENGTH_SHORT).show();
-
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-                params.put("name", name);
-                params.put("address", address);
-                params.put("phone", phone);
-                params.put("password", password);
-                params.put("role", role);
-                params.put("rumah_pompa", rumah_pompa);
-
-                return params;
-            }
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
-
-    /*private void edit(final String username, final String rumah_pompa, final String name, final String role, final String address, final String phone) {
-        String tag_string_req = "req_edituser";
-        //showProgress(true);
-
-        //Toast.makeText(this, "username: " + username + " rumah_pompa: " + rumah_pompa + " name: " + name + " role: " + role + " address: " + address + " phone: " + phone + " password: " + password, Toast.LENGTH_SHORT).show();
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_EDITUSER, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //showProgress(false);
-                //Toast.makeText(AddUserActivity.this, "username: " + username + " rumah_pompa: " + rumah_pompa + " name: " + name + " role: " + role + " address: " + address + " phone: " + phone + " password: " + password, Toast.LENGTH_SHORT).show();
-                //Toast.makeText(AddUserActivity.this, response, Toast.LENGTH_SHORT).show();
-                //Toast.makeText(AddUserActivity.this, "role: ", Toast.LENGTH_SHORT).show();
-                try {
-
-                    JSONObject jObj = new JSONObject(response);
-                    boolean status = jObj.getBoolean("status");
-
-                    if (status) {
-                        String msg = jObj.getString("msg");
-                        Toast.makeText(AddUserActivity.this, AppConfig.EDIT_SUCCESS, Toast.LENGTH_SHORT).show();
-                        *//*Intent intent_profil = new Intent(getBaseContext(), AdminHomeActivity.class);
-                        intent_profil.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent_profil);*//*
-
-                        finish();
-
-                    } else {
-                        // Error in login. Get the error message
-                        String errorMsg = jObj.getString("msg");
-                        Toast.makeText(getApplicationContext(), errorMsg, Toast.LENGTH_LONG).show();
-
-                    }
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-                params.put("name", name);
-                params.put("address", address);
-                params.put("phone", phone);
-                params.put("role", role);
-                params.put("rumah_pompa", rumah_pompa);
-
-                return params;
-            }
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     private boolean isUsernameValid(String username) {
         String username_pattern = "^[a-zA-Z0-9._-]{3,50}$";
@@ -800,15 +499,6 @@ public class AddUserActivity extends AppCompatActivity {
 
         return matcher.matches();
     }
-
-    /*private boolean isPasswordValid(String password) {
-        String password_pattern = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{5,20})";
-
-        Pattern pattern = Pattern.compile(password_pattern);
-        Matcher matcher = pattern.matcher(password);
-
-        return matcher.matches();
-    }*/
 
     private boolean isPasswordValid(String password) {
         String password_pattern = "((?=.*\\d)(?=.*[a-zA-Z]).{5,})";
@@ -895,7 +585,7 @@ public class AddUserActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(JSONObject response) {
+            public ArrayList<String> onResponse(JSONObject response) {
                 try {
                     boolean status = response.getBoolean("status");
 
@@ -910,57 +600,10 @@ public class AddUserActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                return null;
             }
         });
     }
-
-    /*private void getRoleUser(final String username, final ServerCallback callback){
-        String tag_string_req = "req_getrolebyusername";
-        //showProgress(true);
-
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_GETROLEBYUSERNAME, new Response.Listener<String>() {
-
-            @Override
-            public void onResponse(String response) {
-                //Toast.makeText(getActivity().getApplicationContext(), response, Toast.LENGTH_SHORT).show();
-                //showProgress(false);
-                try {
-                    JSONObject jObj = new JSONObject(response);
-                    //JSONObject result = jObj.getJSONObject("result");
-                    String role = jObj.getString("nama_role");
-                    callback.onSuccess(role);
-
-                } catch (JSONException e) {
-                    // JSON error
-                    e.printStackTrace();
-                    //Toast.makeText(getActivity().getApplicationContext(), "Json2 error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                }
-            }
-        }, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("Error", "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                //showProgress(false);
-            }
-        }){
-
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting parameters to login url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("username", username);
-
-                return params;
-            }
-
-        };
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }*/
 
     public interface ServerCallback {
         void onSuccess(String role);
